@@ -124,7 +124,11 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
-.json
+C:\Users\55219\Documents\GitHub\exercicio-python\registro\TEMPERATURA\.json
+C:\Users\55219\Documents\GitHub\exercicio-python\registro\UMIDADE\.json
+
 
 # Pyre type checker
 .pyre/
+
+

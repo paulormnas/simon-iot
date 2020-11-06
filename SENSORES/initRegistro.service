@@ -1,0 +1,13 @@
+[Unit]
+Description= Temperatura e umidade.
+
+[Service]
+Type=simple
+ExecStart= /home/pi/exercicio-python/SENSORES/startRegistro.sh start
+
+
+[Install]
+WantedBy= multi-user.target
+
+
+

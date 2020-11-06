@@ -48,13 +48,13 @@ def verificar_desv_pad (leituras):
     
     desv_pad = np.std(leituras)
     #print("Desvio Padrão: {:.4f}".format(desv_pad))
-
+    
     if (desv_pad < 10):
         return True
     else:
         return False
         
-### Script parra leitura dos dados
+### Script para leitura dos dados
 
 fila_umidade = Fila(tamanho = TOTAL_DE_LEITURAS)
 fila_temperatura = Fila(tamanho = TOTAL_DE_LEITURAS)
@@ -62,22 +62,23 @@ fila_temperatura = Fila(tamanho = TOTAL_DE_LEITURAS)
 tamanho_temperatura = 0
 tamanho_umidade = 0
 
-while (tamanho_temperatura < TOTAL_DE_LEITURAS and tamanho_umidade < TOTAL_DE_LEITURAS):
+#while (tamanho_temperatura < TOTAL_DE_LEITURAS and tamanho_umidade < TOTAL_DE_LEITURAS):
+while (True):
     umidade, temperatura = dht.ler_dados()
     if umidade is not None and temperatura is not None:
         print('{0},{1},{2:0.1f}*C,{3:0.1f}%rn'.format(time.strftime('%m/%d/%y'), time.strftime('%H:%M'), temperatura, umidade))
         
         lista_temporaria = []
-        lista_temporaria = fila_umidade.ler_itens()
+        lista_temporaria.extend(fila_umidade.ler_itens())
         lista_temporaria.append(umidade)
         if verificar_desv_pad(lista_temporaria):
             fila_umidade.adicionar_item(umidade)
 
         lista_temporaria = []
-        lista_temporaria = fila_temperatura.ler_itens()
+        lista_temporaria.extend(fila_temperatura.ler_itens())
         lista_temporaria.append(temperatura)
         if verificar_desv_pad(lista_temporaria):
-            fila_temperatura.adicionar_item(umidade)
+            fila_temperatura.adicionar_item(temperatura)
 
     else:
         print("Falha ao receber os dados do sensor.")

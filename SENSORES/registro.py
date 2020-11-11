@@ -73,12 +73,15 @@ while (True):
         lista_temporaria.append(umidade)
         if verificar_desv_pad(lista_temporaria):
             fila_umidade.adicionar_item(umidade)
+            gerar_dados("UMIDADE", umidade)
+
 
         lista_temporaria = []
         lista_temporaria.extend(fila_temperatura.ler_itens())
         lista_temporaria.append(temperatura)
         if verificar_desv_pad(lista_temporaria):
             fila_temperatura.adicionar_item(temperatura)
+            gerar_dados("TEMPERATURA", temperatura)
 
     else:
         print("Falha ao receber os dados do sensor.")
@@ -86,5 +89,3 @@ while (True):
     tamanho_temperatura = len(fila_temperatura.ler_itens())
     tamanho_umidade = len(fila_umidade.ler_itens())
 
-gerar_dados("TEMPERATURA", temperatura)
-gerar_dados("UMIDADE", umidade)

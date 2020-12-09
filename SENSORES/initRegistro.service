@@ -3,7 +3,7 @@ Description= Temperatura e umidade.
 
 [Service]
 Type=simple
-ExecStart= /home/pi/exercicio-python/SENSORES/startRegistro.sh start
+ExecStart= /home/pi/Documents/exercicio-python/SENSORES/startRegistro.sh start
 
 
 [Install]

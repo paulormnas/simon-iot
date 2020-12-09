@@ -1,6 +1,7 @@
 import json
 import time
 import numpy as np
+import requests
 from leitura import DHT22
 from Fila import Fila
 
@@ -23,6 +24,16 @@ def registrar_dados(dados):
     with open(caminho_do_arquivo, "a+") as f:
         f.write(dados_json)
 
+
+### Função para enviar os dados dos sensores para o servidor ###
+
+def enviar_dados(dados):
+    dados_json = json.dumps(dados)
+    enviar_dados = requests.post("http://192.168.1.8:8080/registrar_dados", data = dados_json)
+    print(enviar_dados)
+
+### Função para gerar os dados dos sensores ###
+
 def gerar_dados(propriedade, valor):
     id = "dispositivo_001"
     localizacao = ["-22.597412, -43.289396"]
@@ -36,6 +47,7 @@ def gerar_dados(propriedade, valor):
              }
 
     registrar_dados(dados)
+    enviar_dados(dados)
     
 def verificar_desv_pad (leituras):
     """
@@ -47,7 +59,6 @@ def verificar_desv_pad (leituras):
     """
     
     desv_pad = np.std(leituras)
-    #print("Desvio Padrão: {:.4f}".format(desv_pad))
     
     if (desv_pad < 10):
         return True

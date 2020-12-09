@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cd /home/pi/exercicio-python/SENSORES
+cd /home/pi/Documents/exercicio-python/SENSORES
 python3 registro.py

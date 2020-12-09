@@ -98,5 +98,5 @@ while (True):
         print("Falha ao receber os dados do sensor.")
 
     tamanho_temperatura = len(fila_temperatura.ler_itens())
-    tamanho_umidade = len(fila_umidade.ler_itens())
+    tamanho_umidade = len(fila_umidade.ler_itens()) 
 

@@ -17,4 +17,3 @@ Mylena
 Ambos
 
 4. Usar a biblioteca unittest do Python para testar a aplicação desenvolvida
-

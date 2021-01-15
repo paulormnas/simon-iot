@@ -7,15 +7,12 @@ import RPi.GPIO as GPIO
 import numpy as np
 
 from security import Signature
-from network.Http import NetworkManager
 from utils.DataStructures import Fila
 
 
 class Sensor():
 
     def __init__(self):
-        # TODO: Inserir informaçoes do servidor em um arquivo de confiuraçao
-        self.nm = NetworkManager(server_url="192.168.1.8", porta=8080)
         self.LAST_READ_TIME = time.time()
         self.signature = Signature()
 
@@ -55,7 +52,7 @@ class Sensor():
         assinatura = self.signature.sign(dados)
         dados["signature"] = assinatura
         self.registrar_dados(dados)
-        self.nm.enviar_dados(dados)
+        return dados
 
     def verificar_desv_pad(self, leituras):
         """
@@ -96,6 +93,7 @@ class DHT22(Sensor):
     def ler_dados(self):
         tamanho_temperatura = 0
         tamanho_umidade = 0
+        dados_para_envio = []
         while (tamanho_temperatura <= self.NUMBER_OF_READINGS and
                tamanho_umidade <= self.NUMBER_OF_READINGS and
                time.time() - self.LAST_READ_TIME <= self.INTERVAL):
@@ -109,20 +107,22 @@ class DHT22(Sensor):
                 lista_temporaria.append(umidade)
                 if self.verificar_desv_pad(lista_temporaria):
                     self.fila_umidade.adicionar_item(umidade)
-                    self.formatar_dados("UMIDADE", umidade)
+                  dados_para_envio.append(self.formatar_dados("UMIDADE", umidade))
 
                 lista_temporaria = []
                 lista_temporaria.extend(self.fila_temperatura.ler_itens())
                 lista_temporaria.append(temperatura)
                 if self.verificar_desv_pad(lista_temporaria):
                     self.fila_temperatura.adicionar_item(temperatura)
-                    self.formatar_dados("TEMPERATURA", temperatura)
+                    dados_para_envio.append(self.formatar_dados("TEMPERATURA", temperatura))
 
             else:
                 print("Falha ao receber os dados do sensor DHT22.")
 
             tamanho_temperatura = len(self.fila_temperatura.ler_itens())
             tamanho_umidade = len(self.fila_umidade.ler_itens())
+
+        return dados_para_envio
 
 class PIR(Sensor):
     def __init__(self, pino, intervalo_medicao):
@@ -139,7 +139,9 @@ class PIR(Sensor):
         GPIO.setup(self.PIN, GPIO.IN)
 
     def ler_dados(self):
+        dados_para_envio = []
         if (time.time() - self.LAST_READ_TIME > self.INTERVAL and
                 GPIO.input(self.PIN)):
-            self.formatar_dados("MOVIMENTO", 1)
+            dados_para_envio.append(self.formatar_dados("MOVIMENTO", 1))
             self.LAST_READ_TIME = time.time()
+        return dados_para_envio

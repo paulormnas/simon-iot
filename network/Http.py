@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import requests
 import json
 
 class NetworkManager():
 	def __init__(self, server_url, porta):
-		self.server = server_url    #TODO: Inserir informaçoes do servidor em um arquivo de confiuraçao
+		self.server = server_url
 		self.port = porta
 
 	def enviar_dados(self, dados):

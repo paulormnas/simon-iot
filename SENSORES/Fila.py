@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 class Fila ():
 	def __init__ (self,	tamanho = 10):
 		self.lista = []
@@ -6,8 +8,8 @@ class Fila ():
 		if len(self.lista) < self.tamanho_da_fila:
 			self.lista.append(item)
 		else:
-			self.lista = self.lista [1:]
-			self.lista.append (item)
+			self.lista = self.lista[1:]
+			self.lista.append(item)
 			
 	def ler_itens(self):
 		return self.lista

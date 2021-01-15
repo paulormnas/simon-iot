@@ -5,8 +5,11 @@ import json
 import Adafruit_DHT
 import RPi.GPIO as GPIO
 import numpy as np
+
+from security import Signature
 from network.Http import NetworkManager
 from utils.DataStructures import Fila
+
 
 class Sensor():
 
@@ -14,6 +17,7 @@ class Sensor():
         # TODO: Inserir informaçoes do servidor em um arquivo de confiuraçao
         self.nm = NetworkManager(server_url="192.168.1.8", porta=8080)
         self.LAST_READ_TIME = time.time()
+        self.signature = Signature()
 
     def registrar_dados(self, dados):
         """
@@ -37,7 +41,8 @@ class Sensor():
 
         """
         id = "dispositivo_001"      #TODO: Inserir ID do dispositivo em um arquivo de confiuraçao
-        localizacao = ["-22.597412, -43.289396"] #TODO: Inserir informaçoes de localizaçao em um arquivo de confiuraçao
+        localizacao = [
+            "-22.597412, -43.289396"]  # TODO: Inserir informaçoes de localizaçao em um arquivo de confiuraçao
         data = time.time()
 
         dados = {'id': id,
@@ -47,6 +52,8 @@ class Sensor():
                  'value': valor
                  }
 
+        assinatura = self.signature.sign(dados)
+        dados["signature"] = assinatura
         self.registrar_dados(dados)
         self.nm.enviar_dados(dados)
 

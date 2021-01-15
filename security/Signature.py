@@ -3,7 +3,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 
 class Signature():
-    
+    # TODO: Adicionar informaçoes de chaves publicas e privadas nas confiuraçoes
     def sign(self, dados):
         convert = str(dados)   #Converte o dicionario em uma string para poder ser em seguida convertido em bytes.
         bite_mensage = convert.encode()   #Converte a string em bytes para poder gerar o Hash.

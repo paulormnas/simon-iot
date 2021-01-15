@@ -1,11 +1,10 @@
 import time
 import json
-import random
 from leitura import DHT22
-from Hash import SimonCrypto
+from security.Signature import Signature
 
 dht = DHT22(pino=4)
-sc = SimonCrypto()
+signature = Signature()
 
 def registrar_dados(dados):
     dados_json = json.dumps(dados)
@@ -27,12 +26,12 @@ def gerar_dados(propriedade, valor):
              # 'signature': assinatura
              }
 
-    assinatura = sc.sign(dados)
+    assinatura = signature.sign(dados)
     assinatura = str(assinatura)
     dados["signature"] = assinatura
     print(dados)
     
-    veri = sc.verify_signature(dados)
+    veri = signature.verify_signature(dados)
     if (veri == True):
         registrar_dados(dados)  
 

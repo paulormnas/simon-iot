@@ -13,7 +13,7 @@ from utils.DataStructures import Fila
 class Sensor():
 
     def __init__(self):
-        self.LAST_READ_TIME = time.time()
+        self.LAST_READ_TIME = 0
         self.signature = Signature()
 
     def registrar_dados(self, dados):
@@ -94,9 +94,10 @@ class DHT22(Sensor):
         tamanho_temperatura = 0
         tamanho_umidade = 0
         dados_para_envio = []
+        umidade, temperatura = (0, 0)
         while (tamanho_temperatura <= self.NUMBER_OF_READINGS and
                tamanho_umidade <= self.NUMBER_OF_READINGS and
-               time.time() - self.LAST_READ_TIME <= self.INTERVAL):
+               time.time() - self.LAST_READ_TIME >= self.INTERVAL):
 
             umidade, temperatura = Adafruit_DHT.read_retry(self.DHT_SENSOR, self.DHT_PIN)
             if umidade is not None and temperatura is not None:
@@ -107,20 +108,22 @@ class DHT22(Sensor):
                 lista_temporaria.append(umidade)
                 if self.verificar_desv_pad(lista_temporaria):
                     self.fila_umidade.adicionar_item(umidade)
-                  dados_para_envio.append(self.formatar_dados("UMIDADE", umidade))
 
                 lista_temporaria = []
                 lista_temporaria.extend(self.fila_temperatura.ler_itens())
                 lista_temporaria.append(temperatura)
                 if self.verificar_desv_pad(lista_temporaria):
                     self.fila_temperatura.adicionar_item(temperatura)
-                    dados_para_envio.append(self.formatar_dados("TEMPERATURA", temperatura))
 
             else:
                 print("Falha ao receber os dados do sensor DHT22.")
 
             tamanho_temperatura = len(self.fila_temperatura.ler_itens())
             tamanho_umidade = len(self.fila_umidade.ler_itens())
+
+        dados_para_envio.append(self.formatar_dados("UMIDADE", umidade))
+        dados_para_envio.append(self.formatar_dados("TEMPERATURA", temperatura))
+        self.LAST_READ_TIME = time.time()
 
         return dados_para_envio
 
@@ -140,7 +143,7 @@ class PIR(Sensor):
 
     def ler_dados(self):
         dados_para_envio = []
-        if (time.time() - self.LAST_READ_TIME > self.INTERVAL and
+        if (time.time() - self.LAST_READ_TIME >= self.INTERVAL and
                 GPIO.input(self.PIN)):
             dados_para_envio.append(self.formatar_dados("MOVIMENTO", 1))
             self.LAST_READ_TIME = time.time()

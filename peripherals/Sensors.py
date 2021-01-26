@@ -5,6 +5,7 @@ import json
 import Adafruit_DHT
 import RPi.GPIO as GPIO
 import numpy as np
+import subprocess
 
 from security import Signature
 from utils.DataStructures import Fila
@@ -30,6 +31,8 @@ class Sensor():
             f.write(dados_json)
 
     def formatar_dados(self, propriedade, valor):
+        config = configparser.ConfigParser()
+        config.read('config.ini')        
         """
         Verifica o desvio padrao de um conjunto de leituras em lista.
 
@@ -37,9 +40,8 @@ class Sensor():
         :valor - number
 
         """
-        id = "dispositivo_001"      #TODO: Inserir ID do dispositivo em um arquivo de confiuraçao
-        localizacao = [
-            "-22.597412, -43.289396"]  # TODO: Inserir informaçoes de localizaçao em um arquivo de confiuraçao
+        id = config['sensor']['id']
+        localizacao = config['sensor']['localizacao']
         data = time.time()
 
         dados = {'id': id,

@@ -1,8 +1,15 @@
 import subprocess
 import json
+
 from datetime import datetime
+from peripherals import Sensor
+from security import Signature
 
 class log():
+    def __init__(self)
+        self.signature = Signature()
+        self.register = Sensor()
+        
     def boot_log(self):    
         result = subprocess.check_output(['who', '-b'], text=True)
         print(result.split())
@@ -21,8 +28,10 @@ class log():
                 'info':boot_date
                 #'signature': assinatura                
                 }
-
-        dados_json = json.dumps(dados)
-        caminho_do_arquivo = "registro/" + dados["property"] + "/" + str(dados["date"]) + ".json"
-        with open(caminho_do_arquivo, "a+") as f:
-            f.write(dados_json)
+        
+        assinatura = self.signature.sign(dados)
+        dados["signature"] = assinatura
+        
+        self.register.registrar_dados(dados)
+        
+        

@@ -2,7 +2,7 @@ import subprocess
 import json
 from datetime import datetime
 
-class log():    
+class log():
     def boot_log(self):    
         result = subprocess.check_output(['who', '-b'], text=True)
         print(result.split())
@@ -26,5 +26,3 @@ class log():
         caminho_do_arquivo = "registro/" + dados["property"] + "/" + str(dados["date"]) + ".json"
         with open(caminho_do_arquivo, "a+") as f:
             f.write(dados_json)
-                    
-        print(dados)

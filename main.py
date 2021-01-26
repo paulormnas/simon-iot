@@ -2,13 +2,14 @@
 
 from peripherals.Sensors import *
 from network.Http import NetworkManager
+from utils.Log import log
 
 def main():
     ### Funcao principal do programa que controla todos o fluxos de execuçao ###
-    # TODO: desenvolver funcionalidade de registro de reinicializaçao
-
     #Configura objeto para tratar requisiçoes via http
     # TODO: Inserir informaçoes do servidor em um arquivo de confiuraçao
+    log = log()
+    logregister = log.boot_log()
     nm = NetworkManager(server_url="192.168.1.8", porta=8080)
 
     # Configura sensores

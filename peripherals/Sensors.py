@@ -3,9 +3,8 @@
 import time
 import json
 import Adafruit_DHT
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import numpy as np
-import subprocess
 
 from security import Signature
 from utils.DataStructures import Fila
@@ -14,7 +13,7 @@ from utils.DataStructures import Fila
 class Sensor():
 
     def __init__(self):
-        self.LAST_READ_TIME = 0
+        self.LAST_READ_TIME = time.time()
         self.signature = Signature()
 
     def registrar_dados(self, dados):
@@ -31,17 +30,16 @@ class Sensor():
             f.write(dados_json)
 
     def formatar_dados(self, propriedade, valor):
-        config = configparser.ConfigParser()
-        config.read('config.ini')        
         """
-        Verifica o desvio padrao de um conjunto de leituras em lista.
+        Informacoes a serem inseridas junto ao registro das medicoes (arquivo com extensao .json)
 
         :propriedade - string
         :valor - number
 
         """
-        id = config['sensor']['id']
-        localizacao = config['sensor']['localizacao']
+        id = "dispositivo_001"      #TODO: Inserir ID do dispositivo em um arquivo de confiuraçao
+        localizacao = [
+            "-22.597412, -43.289396"]  # TODO: Inserir informaçoes de localizaçao em um arquivo de confiuraçao
         data = time.time()
 
         dados = {'id': id,
@@ -92,14 +90,14 @@ class DHT22(Sensor):
         self.fila_umidade = Fila(tamanho=self.NUMBER_OF_READINGS)
         self.fila_temperatura = Fila(tamanho=self.NUMBER_OF_READINGS)
 
+    @property
     def ler_dados(self):
         tamanho_temperatura = 0
         tamanho_umidade = 0
         dados_para_envio = []
-        umidade, temperatura = (0, 0)
         while (tamanho_temperatura <= self.NUMBER_OF_READINGS and
                tamanho_umidade <= self.NUMBER_OF_READINGS and
-               time.time() - self.LAST_READ_TIME >= self.INTERVAL):
+               time.time() - self.LAST_READ_TIME <= self.INTERVAL):
 
             umidade, temperatura = Adafruit_DHT.read_retry(self.DHT_SENSOR, self.DHT_PIN)
             if umidade is not None and temperatura is not None:
@@ -110,12 +108,14 @@ class DHT22(Sensor):
                 lista_temporaria.append(umidade)
                 if self.verificar_desv_pad(lista_temporaria):
                     self.fila_umidade.adicionar_item(umidade)
+                    dados_para_envio.append(self.formatar_dados("UMIDADE", umidade))
 
                 lista_temporaria = []
                 lista_temporaria.extend(self.fila_temperatura.ler_itens())
                 lista_temporaria.append(temperatura)
                 if self.verificar_desv_pad(lista_temporaria):
                     self.fila_temperatura.adicionar_item(temperatura)
+                    dados_para_envio.append(self.formatar_dados("TEMPERATURA", temperatura))
 
             else:
                 print("Falha ao receber os dados do sensor DHT22.")
@@ -123,17 +123,14 @@ class DHT22(Sensor):
             tamanho_temperatura = len(self.fila_temperatura.ler_itens())
             tamanho_umidade = len(self.fila_umidade.ler_itens())
 
-        dados_para_envio.append(self.formatar_dados("UMIDADE", umidade))
-        dados_para_envio.append(self.formatar_dados("TEMPERATURA", temperatura))
-        self.LAST_READ_TIME = time.time()
-
         return dados_para_envio
-        
+
 class PIR(Sensor):
     def __init__(self, pino, intervalo_medicao):
         '''
-        Construtor da classe DHT22, onde pino identifica e a porta GPIO do Raspberry no qual o sensor se encontra
+        Construtor da classe PIR, onde pino identifica e a porta GPIO do Raspberry no qual o sensor se encontra
         conectado e intervalo_medicao e o tempo, em segundos, entre mediçoes consecutivas.
+
         :pino - int
         :intervalo_medicao: - int
 
@@ -145,7 +142,7 @@ class PIR(Sensor):
 
     def ler_dados(self):
         dados_para_envio = []
-        if (time.time() - self.LAST_READ_TIME >= self.INTERVAL and
+        if (time.time() - self.LAST_READ_TIME > self.INTERVAL and
                 GPIO.input(self.PIN)):
             dados_para_envio.append(self.formatar_dados("MOVIMENTO", 1))
             self.LAST_READ_TIME = time.time()

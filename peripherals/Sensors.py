@@ -3,7 +3,7 @@
 import time
 import json
 import Adafruit_DHT
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
 import numpy as np
 import subprocess
 
@@ -128,7 +128,7 @@ class DHT22(Sensor):
         self.LAST_READ_TIME = time.time()
 
         return dados_para_envio
-
+        
 class PIR(Sensor):
     def __init__(self, pino, intervalo_medicao):
         '''

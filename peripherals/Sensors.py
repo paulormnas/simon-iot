@@ -6,9 +6,8 @@ import Adafruit_DHT
 import RPi.GPIO as GPIO
 import numpy as np
 
-from security import Signature
+from security.Sign import Signature
 from utils.DataStructures import Fila
-
 
 class Sensor():
 
@@ -50,9 +49,10 @@ class Sensor():
                  }
 
         assinatura = self.signature.sign(dados)
-        dados["signature"] = assinatura
+        assinatura = str(assinatura)
+        dados['signature'] = assinatura
         self.registrar_dados(dados)
-        return dados
+        print(dados)
 
     def verificar_desv_pad(self, leituras):
         """
@@ -138,6 +138,7 @@ class PIR(Sensor):
         super().__init__()
         self.PIN = pino
         self.INTERVAL = intervalo_medicao
+        GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.PIN, GPIO.IN)
 
     def ler_dados(self):

@@ -12,8 +12,8 @@ def main():
     nm = NetworkManager(server_url="192.168.1.8", porta=8080)
 
     # Configura sensores
-    dht = DHT22(pino=22, quantidade_leituras=10, intervalo_medicao=300)
-    pir = PIR(pino=17, intervalo_medicao=60)
+    dht = DHT22(pino=4, quantidade_leituras=10, intervalo_medicao=300)
+    pir = PIR(pino=11, intervalo_medicao=60)
     lista_de_sensores = [dht, pir]
 
     # Loop infinito para realizar mediçoes e enviar dados para o servidor

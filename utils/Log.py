@@ -3,11 +3,11 @@ import json
 
 from datetime import datetime
 from peripherals import Sensor
-from security import Signature
+from security import Sign
 
 class log():
     def __init__(self)
-        self.signature = Signature()
+        #signature = Sign()
         self.register = Sensor()
         
     def boot_log(self):    
@@ -29,7 +29,8 @@ class log():
                 #'signature': assinatura                
                 }
         
-        assinatura = self.signature.sign(dados)
+        assinatura = signature.sign(dados)
+        assinatura = str(assinatura)
         dados["signature"] = assinatura
         
         self.register.registrar_dados(dados)

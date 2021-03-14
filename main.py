@@ -1,20 +1,34 @@
 # -*- coding: utf-8 -*-
+import configparser
 
 from peripherals.Sensors import *
 from network.Http import NetworkManager
 
+
 def main():
+    config = configparser.ConfigParser()
+    config.read('config.ini')
     ### Funcao principal do programa que controla todos o fluxos de execuçao ###
     # TODO: desenvolver funcionalidade de registro de reinicializaçao
 
     #Configura objeto para tratar requisiçoes via http
     # TODO: Inserir informaçoes do servidor em um arquivo de confiuraçao
-    nm = NetworkManager(server_url="192.168.1.8", porta=8080)
+    URL = config.get('server','url')
+    Porta = config.getint('server','porta')
+    
+    nm = NetworkManager(server_url = URL, porta = Porta)
 
     # Configura sensores
-    dht = DHT22(pino=4, quantidade_leituras=10, intervalo_medicao=300)
-    pir = PIR(pino=11, intervalo_medicao=60)
+    pinoDHT = config.getint('DHT','pino')
+    leiturasDHT = config.getint('DHT','leituras')
+    intervaloDHT = config.getint('DHT','intervalo')
+    pinoPIR = config.getint('PIR','pino')
+    intervaloPIR = config.getint('PIR','intervalo')
+    
+    dht = DHT22(pino = pinoDHT, quantidade_leituras = leiturasDHT, intervalo_medicao = intervaloDHT)
+    pir = PIR(pino = pinoPIR, intervalo_medicao = intervaloPIR)
     lista_de_sensores = [dht, pir]
+
 
     # Loop infinito para realizar mediçoes e enviar dados para o servidor
     while (True):

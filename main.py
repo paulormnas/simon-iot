@@ -2,7 +2,7 @@
 import configparser
 from peripherals.Sensors import *
 from network.Http import NetworkManager
-from utils.Log import log
+from utils.Log import LogManager
 
 
 def main():
@@ -11,8 +11,8 @@ def main():
     ### Funcao principal do programa que controla todos o fluxos de execuçao ###
     
     #Registra o log de inicializacao do sistema
-    log.registro = classmethod(log.boot_log)
-    log.registro()
+    log = LogManager()
+    log.generate_boot_log()
 
     #Configura objeto para tratar requisiçoes via http
     URL = config.get('server','url')

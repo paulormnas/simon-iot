@@ -7,13 +7,15 @@ from datetime import datetime
 from peripherals.Sensors import Sensor
 from security.Sign import Signature
 
-class log():
+class LogManager():
     
-    def boot_log(self):
-        config = configparser.ConfigParser()
-        config.read('config.ini')
-        signature = Signature()
-        
+    def __init__(self):
+        self.config = configparser.ConfigParser()
+        self.config.read('config.ini')
+        self.signature = Signature()
+
+    def generate_boot_log(self):
+                
         result = subprocess.check_output(['who', '-b'], text=True)
         print(result.split())
         date_text = result.split()[2]
@@ -24,25 +26,24 @@ class log():
         boot_date = boot_date.replace(hour=hour, minute=minute)
         boot_date = boot_date.timestamp()
         date = datetime.now().timestamp()        
-        ID = config.get('data','id')
-        localizacao = config.get('data','localizacao')
-        data = time.time()
-        
-        log = {'id':ID,
+        _id = self.config.get('data','id')
+        localizacao = self.config.get('data','localizacao')
+               
+        log = {'id':_id,
                 'property':'Log',
                 'localizacao':localizacao,
-                'date':data,
+                'date':date,
                 'info':boot_date
                 #'signature': assinatura               
                 }
         
-        assinatura = signature.sign(log)
+        assinatura = self.signature.sign(log)
         assinatura = str(assinatura)
         log['signature'] = assinatura
-        self.registrar_log(log)
+        self.register(log)
         print(log)
         
-    def registrar_log(self, log):
+    def register(self, log):
         
         log_json = json.dumps(log)
         caminho_do_arquivo = "registro/" + log["property"] + "/" + str(log["date"]) + ".json"

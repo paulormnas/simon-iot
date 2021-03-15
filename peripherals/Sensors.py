@@ -5,6 +5,7 @@ import json
 import Adafruit_DHT
 import RPi.GPIO as GPIO
 import numpy as np
+import configparser
 
 from security.Sign import Signature
 from utils.DataStructures import Fila
@@ -28,7 +29,9 @@ class Sensor():
         with open(caminho_do_arquivo, "a+") as f:
             f.write(dados_json)
 
-    def formatar_dados(self, propriedade, valor):
+    def formatar_dados(self, propriedade, valor):        
+        config = configparser.ConfigParser()
+        config.read('config.ini')
         """
         Informacoes a serem inseridas junto ao registro das medicoes (arquivo com extensao .json)
 
@@ -36,12 +39,11 @@ class Sensor():
         :valor - number
 
         """
-        id = "dispositivo_001"      #TODO: Inserir ID do dispositivo em um arquivo de confiuraçao
-        localizacao = [
-            "-22.597412, -43.289396"]  # TODO: Inserir informaçoes de localizaçao em um arquivo de confiuraçao
+        ID = config.get('data','id')
+        localizacao = config.get('data','localizacao')
         data = time.time()
 
-        dados = {'id': id,
+        dados = {'id': ID,
                  'location': localizacao,
                  'property': propriedade,
                  'date': data,

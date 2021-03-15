@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 import configparser
-
 from peripherals.Sensors import *
 from network.Http import NetworkManager
+from utils.Log import log
 
 
 def main():
     config = configparser.ConfigParser()
     config.read('config.ini')
     ### Funcao principal do programa que controla todos o fluxos de execuçao ###
-    # TODO: desenvolver funcionalidade de registro de reinicializaçao
+    
+    #Registra o log de inicializacao do sistema
+    log.registro = classmethod(log.boot_log)
+    log.registro()
 
     #Configura objeto para tratar requisiçoes via http
-    # TODO: Inserir informaçoes do servidor em um arquivo de confiuraçao
     URL = config.get('server','url')
     Porta = config.getint('server','porta')
     

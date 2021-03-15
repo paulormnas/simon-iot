@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-
 import time
 import json
 import Adafruit_DHT
 import RPi.GPIO as GPIO
 import numpy as np
 import configparser
-
 from security.Sign import Signature
 from utils.DataStructures import Fila
 
@@ -19,7 +17,6 @@ class Sensor():
     def registrar_dados(self, dados):
         """
         Converte dicionario com informaçoes de mediçao em formato JSON e registra em um arquivo com extensão .json.
-
             :dados - dict
             :return - None
         """

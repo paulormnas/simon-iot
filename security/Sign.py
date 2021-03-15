@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 import configparser
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 
 class Signature():
+    
     def __init__(self):
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')

@@ -24,8 +24,8 @@ class LogManager():
         minute = int(hour_text.split(':')[1])
         boot_date = datetime.fromisoformat(date_text)
         boot_date = boot_date.replace(hour=hour, minute=minute)
-        boot_date = boot_date.timestamp()
-        date = datetime.now().timestamp()        
+        boot_date = str(boot_date)
+        date = datetime.now().timestamp()
         _id = self.config.get('data','id')
         localizacao = self.config.get('data','localizacao')
                

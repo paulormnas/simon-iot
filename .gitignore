@@ -131,3 +131,6 @@ dmypy.json
 
 # Pastas com registros de dados do projeto
 registro/
+
+#Arquivos de confiuraçao
+config.ini

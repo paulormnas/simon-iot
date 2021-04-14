@@ -4,7 +4,6 @@ import json
 import configparser
 import time
 from datetime import datetime
-from peripherals.Sensors import Sensor
 from security.Sign import Signature
 
 class LogManager():
@@ -42,7 +41,7 @@ class LogManager():
         log['signature'] = assinatura
         self.register(log)
         print(log)
-        
+    
     def register(self, log):
         
         log_json = json.dumps(log)

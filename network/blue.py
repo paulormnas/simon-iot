@@ -5,10 +5,9 @@ import json
 import random
 import subprocess
 import time
-from bluetooth import *
+from bluetooth
 from security.Sign import Signature
-from utils.Log import bluetooth_log_verify
-from utils.Log import bluetooth_log_calibre
+from utils.Log import LogManager
 
 class bluetooth:
     
@@ -17,7 +16,6 @@ class bluetooth:
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')        
         self.signature = Signature()
-        self.log = LogManager()
         self.client_sock = None
         self.client_info = None
         self.server_sock = None
@@ -48,17 +46,18 @@ class bluetooth:
         print("Conexão aceita com dispostivo ", self.client_info)
         self.client_sock.send("Rasp meter say Hello!")
     
-    def challenge(self):
-
-        self.client_sock.send("Assine a informacao abaixo")
+    def challenge(self):        
+        
         # challenge = random.random()
         challenge = 0.033434099161654296
         print(challenge)
+        log = LogManager()
         assinatura = signature.sign(challenge)
         # print(assinatura)
         self.client_sock.send('challenge')
         self.client_sock.settimeout(5.0)
         data = self.client_sock.recv(2048)
+        
             
         # TODO: enviar data para o servidor conferir a assinatura
             

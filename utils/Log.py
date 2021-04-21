@@ -43,25 +43,19 @@ class LogManager():
         _id = self.config.get('data','id')
         localizacao = self.config.get('data','localizacao')
         
+        log = {'id':_id,
+                'device':addr,
+                'property':'Bluetooth',
+                'location':localizacao,
+                'date':date,
+                }
+        
         if is_valid == "valid":
-            log = {'id':_id,
-                    'device':addr,
-                    'property':'Bluetooth',
-                    'location':localizacao,
-                    'date':date,
-                    'info':'Validation Authenticated'
-                    #'signature': assinatura               
-                    }
+            log['info'] = 'Validation Authenticated'
                         
-        else:            
-            log = {'id':_id,
-                    'device':addr,
-                    'property':'Bluetooth',
-                    'location':localizacao,
-                    'date':date,
-                    'info':'Validation Failed'
-                    #'signature': assinatura               
-                    }
+        else:
+            log['info'] = 'Validation Failed'        
+
         self.sign()
                 
     def bluetooth_log_calibre(self):

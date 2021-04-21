@@ -30,59 +30,39 @@ class LogManager():
                
         log = {'id':_id,
                 'property':'Log',
-                'localizacao':localizacao,
+                'location':localizacao,
                 'date':date,
                 'info':boot_date
                 #'signature': assinatura               
                 }
-        
-        assinatura = self.signature.sign(log)
-        assinatura = str(assinatura)
-        log['signature'] = assinatura
-        self.register(log)
-        print(log)
+        self.sign()
         
     def bluetooth_log_connection(self, is_valid, addr):
-            
+        
+        date = datetime.now().timestamp()
+        _id = self.config.get('data','id')
+        localizacao = self.config.get('data','localizacao')
+        
         if is_valid == "valid":
-            date = datetime.now().timestamp()
-            _id = self.config.get('data','id')
-            localizacao = self.config.get('data','localizacao')
-                           
             log = {'id':_id,
                     'device':addr,
                     'property':'Bluetooth',
-                    'localizacao':localizacao,
+                    'location':localizacao,
                     'date':date,
                     'info':'Validation Authenticated'
                     #'signature': assinatura               
                     }
-            
-            assinatura = self.signature.sign(log)
-            assinatura = str(assinatura)
-            log['signature'] = assinatura
-            self.register(log)
-            print(log)
                         
-        else if is_valid == "invalid":
-            date = datetime.now().timestamp()
-            _id = self.config.get('data','id')
-            localizacao = self.config.get('data','localizacao')
-                           
+        else:            
             log = {'id':_id,
                     'device':addr,
                     'property':'Bluetooth',
-                    'localizacao':localizacao,
+                    'location':localizacao,
                     'date':date,
                     'info':'Validation Failed'
                     #'signature': assinatura               
                     }
-                    
-            assinatura = self.signature.sign(log)
-            assinatura = str(assinatura)
-            log['signature'] = assinatura
-            self.register(log)
-            print(log)
+        self.sign()
                 
     def bluetooth_log_calibre(self):
         
@@ -92,12 +72,15 @@ class LogManager():
                
         log = {'id':_id,
                 'property':'Calibration',
-                'localizacao':localizacao,
+                'location':localizacao,
                 'date':date,
                 'signal':''
                 #'signature': assinatura               
                 }
-        
+        self.sign()
+    
+    def sign(self):
+    
         assinatura = self.signature.sign(log)
         assinatura = str(assinatura)
         log['signature'] = assinatura

@@ -19,7 +19,7 @@ class bluetooth:
         self.signature = Signature()
         self.log = LogManager()
         
-    def bluetooth_start(self):
+    def bluetooth_connect(self):
 
         subprocess.call(['sudo', 'hciconfig', 'hci0', 'piscan'])
         signature = Signature()
@@ -35,7 +35,10 @@ class bluetooth:
         client_sock, client_info = server_sock.accept()
         print("Conexão aceita com dispostivo ", client_info)
         client_sock.send("Rasp meter say Hello!")
-
+        self.bluetooth_challenge()
+    
+    def bluetooth_challenge(self):
+    
         while True:
             client_sock.send("Assine a informacao abaixo")
             # challenge = random.random()
@@ -45,9 +48,12 @@ class bluetooth:
             # print(assinatura)
             client_sock.send('challenge')
             data = client_sock.recv(2048)
+            self.bluetooth_verify()
             
             # TODO: enviar data para o servidor conferir a assinatura
             
+    def bluetooth_verify(self)
+    
             data = data[:len(data)-2]
             if data == assinatura:
                 print('Assinatura é válida')
@@ -64,5 +70,3 @@ class bluetooth:
                 client_sock.close()
                 server_sock.close()
                 break
-    
-bluetooth_start()

@@ -4,7 +4,6 @@ import json
 import configparser
 import time
 from datetime import datetime
-from peripherals.Sensors import Sensor
 from security.Sign import Signature
 
 class LogManager():
@@ -31,18 +30,55 @@ class LogManager():
                
         log = {'id':_id,
                 'property':'Log',
-                'localizacao':localizacao,
+                'location':localizacao,
                 'date':date,
-                'info':boot_date
-                #'signature': assinatura               
+                'info':boot_date    
+                }
+        self.sign()
+        
+    def bluetooth_log_connection(self, is_valid, addr):
+        
+        date = datetime.now().timestamp()
+        _id = self.config.get('data','id')
+        localizacao = self.config.get('data','localizacao')
+        
+        log = {'id':_id,
+                'device':addr,
+                'property':'Bluetooth',
+                'location':localizacao,
+                'date':date,
                 }
         
+        if is_valid == "valid":
+            log['info'] = 'Validation Authenticated'
+                        
+        else:
+            log['info'] = 'Validation Failed'        
+
+        self.sign()
+                
+    def bluetooth_log_calibre(self):
+        
+        date = datetime.now().timestamp()
+        _id = self.config.get('data','id')
+        localizacao = self.config.get('data','localizacao')
+               
+        log = {'id':_id,
+                'property':'Calibration',
+                'location':localizacao,
+                'date':date,
+                'signal':''       
+                }
+        self.sign()
+    
+    def sign(self):
+    
         assinatura = self.signature.sign(log)
         assinatura = str(assinatura)
         log['signature'] = assinatura
         self.register(log)
         print(log)
-        
+    
     def register(self, log):
         
         log_json = json.dumps(log)

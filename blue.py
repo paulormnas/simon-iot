@@ -7,7 +7,8 @@ import configparser
 import time
 from bluetooth import *
 from security.Sign import Signature
-from utils.Log import bluetooth_log
+from utils.Log import bluetooth_log_verify
+from utils.Log import bluetooth_log_calibre
 
 class bluetooth:
     
@@ -15,7 +16,8 @@ class bluetooth:
         
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')        
-        self.signature = Signature()        
+        self.signature = Signature()
+        self.log = LogManager()
         
     def bluetooth_start(self):
 
@@ -49,71 +51,18 @@ class bluetooth:
             data = data[:len(data)-2]
             if data == assinatura:
                 print('Assinatura é válida')
+                log_accept = self.log.bluetooth_log_connection(is_valid="valid", addr=client_info)
                 print("Autenticado")
                 print('Iniciando processo de calibração')
-                timeStart = datetime.now().timestamp()
-                self.bluetooth_log_accept()
-                self.bluetooth_register(log)
+                log_calib = self.log.bluetooth_log_calibre()
                 
             else:
                 print('Assinatura é inválida')
                 print("Resultado incorreto")
-                self.bluetooth_log_refuse()
-                self.bluetooth_register(log)
+                log_refuse = self.log.bluetooth_log_connection(is_valid="invalid", addr=client_info)
                 print("Closing sockets")
                 client_sock.close()
                 server_sock.close()
                 break
-
-    def bluetooth_log_accept(self, timeStart):
-                    
-        date = datetime.now().timestamp()
-        duration = timeStart - date
-        _id = self.config.get('data','id')
-        localizacao = self.config.get('data','localizacao')
-                   
-        log = {'id':_id,
-                'socket':str(client_info),
-                'property':'Calibracao',
-                'localizacao':localizacao,
-                'date':date,
-                'info':'Validation Authenticated',
-                'duration': duration
-                #'signature': assinatura               
-                }
-            
-        assinatura = self.signature.sign(log)
-        assinatura = str(assinatura)
-        log['signature'] = assinatura
-        self.register(log)
-        print(log)
-
-    def bluetooth_log_refuse(self):
-                    
-        date = datetime.now().timestamp()
-        _id = self.config.get('data','id')
-        localizacao = self.config.get('data','localizacao')
-                   
-        log = {'id':_id,
-                'socket':str(client_info),
-                'property':'Calibracao',
-                'localizacao':localizacao,
-                'date':date,
-                'info':'Validation Failed'
-                #'signature': assinatura               
-                }
-            
-        assinatura = self.signature.sign(log)
-        assinatura = str(assinatura)
-        log['signature'] = assinatura
-        self.register(log)
-        print(log)
-
-    def bluetooth_register(self, log):
-            
-        log_json = json.dumps(log)
-        caminho_do_arquivo = "registro/" + log["property"] + "/" + str(log["date"]) + ".json"
-        with open(caminho_do_arquivo, "a+") as f:
-            f.write(log_json)
     
 bluetooth_start()

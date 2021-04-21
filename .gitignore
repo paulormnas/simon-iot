@@ -130,4 +130,4 @@ dmypy.json
 .pyre/
 
 # Pastas com registros de dados do projeto
-registro/
+registros/

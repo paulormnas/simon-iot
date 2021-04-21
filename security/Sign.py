@@ -25,8 +25,6 @@ class Signature():
         
         copia = dados   #Copia o dicionario original para fazer as operacoes de comparacao sem alterar o original
         original = dados.get("signature")   #Armazena o valor do campo signature para ser usada na comparacao de chaves
-        key_path = self.config.get('keys','private_key')
-        key = RSA.import_key(open(key_path).read())
         copia.pop("signature")   #Remove o campo de assinatura da copia para poder gerar um novo hash para comparacao
         convert = str(copia)   #Converte o dicionario copiado em uma string para poder ser em seguida convertido em bytes.
         bite_mensage = convert.encode()   #Converte a string em bytes para poder gerar o Hash.

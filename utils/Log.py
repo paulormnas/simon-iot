@@ -41,6 +41,68 @@ class LogManager():
         log['signature'] = assinatura
         self.register(log)
         print(log)
+        
+    def bluetooth_log_connection(self, is_valid, addr):
+            
+        if is_valid == "valid":
+            date = datetime.now().timestamp()
+            _id = self.config.get('data','id')
+            localizacao = self.config.get('data','localizacao')
+                           
+            log = {'id':_id,
+                    'device':addr,
+                    'property':'Bluetooth',
+                    'localizacao':localizacao,
+                    'date':date,
+                    'info':'Validation Authenticated'
+                    #'signature': assinatura               
+                    }
+            
+            assinatura = self.signature.sign(log)
+            assinatura = str(assinatura)
+            log['signature'] = assinatura
+            self.register(log)
+            print(log)
+                        
+        else if is_valid == "invalid":
+            date = datetime.now().timestamp()
+            _id = self.config.get('data','id')
+            localizacao = self.config.get('data','localizacao')
+                           
+            log = {'id':_id,
+                    'device':addr,
+                    'property':'Bluetooth',
+                    'localizacao':localizacao,
+                    'date':date,
+                    'info':'Validation Failed'
+                    #'signature': assinatura               
+                    }
+                    
+            assinatura = self.signature.sign(log)
+            assinatura = str(assinatura)
+            log['signature'] = assinatura
+            self.register(log)
+            print(log)
+                
+    def bluetooth_log_calibre(self):
+        
+        date = datetime.now().timestamp()
+        _id = self.config.get('data','id')
+        localizacao = self.config.get('data','localizacao')
+               
+        log = {'id':_id,
+                'property':'Calibration',
+                'localizacao':localizacao,
+                'date':date,
+                'signal':''
+                #'signature': assinatura               
+                }
+        
+        assinatura = self.signature.sign(log)
+        assinatura = str(assinatura)
+        log['signature'] = assinatura
+        self.register(log)
+        print(log)
     
     def register(self, log):
         

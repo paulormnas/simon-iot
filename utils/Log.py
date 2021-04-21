@@ -32,8 +32,7 @@ class LogManager():
                 'property':'Log',
                 'location':localizacao,
                 'date':date,
-                'info':boot_date
-                #'signature': assinatura               
+                'info':boot_date    
                 }
         self.sign()
         
@@ -68,8 +67,7 @@ class LogManager():
                 'property':'Calibration',
                 'location':localizacao,
                 'date':date,
-                'signal':''
-                #'signature': assinatura               
+                'signal':''       
                 }
         self.sign()
     

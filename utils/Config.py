@@ -23,7 +23,7 @@ class ConfigSecurity(Config):
         return self.get_property(section='security', property_name='public_key')
 
     @property
-    def public_key_path(self):
+    def private_key_path(self):
         return self.get_property(section='security', property_name='private_key')
 
 

@@ -134,3 +134,12 @@ registro/
 
 #Arquivos de confiuraçao
 config.ini
+
+# Chaves publica e privada
+private.pem
+public.pem
+SiMon-meter_priv_key.pem
+SiMon-meter_public_key.pem
+SiMon-standard_priv_key.pem
+SiMon-standard_public_key.pem
+

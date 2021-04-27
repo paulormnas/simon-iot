@@ -11,7 +11,10 @@ class Config(object):
         self.config.read(config_path)
 
     def get_property(self, section, property_name):
-        return self.config[section][property_name] if section in self.config and property_name in self.config[section] else None
+        property_value = None
+        if section in self.config and property_name in self.config[section]:
+            property_value = self.config[section][property_name]
+        return property_value
 
 
 class ConfigSecurity(Config):

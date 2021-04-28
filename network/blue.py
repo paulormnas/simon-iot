@@ -59,8 +59,6 @@ class bluetooth:
         self.client_sock.send('challenge')
         self.client_sock.settimeout(5.0)
         data = self.client_sock.recv(2048)
-        
-        # TODO: enviar data para o servidor conferir a assinatura
         check_signature = http.conferir_assinatura(data)
 
             

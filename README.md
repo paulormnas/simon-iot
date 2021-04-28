@@ -1,5 +1,5 @@
-# Exercicio Python
-Repositório para projeto de IoT desenvolvido utilizando um Raspberry Pi 3B+ conectado aos sensores de temperatura e umidade (DHT22) e sensore de movimento (PIR).
+# SiMon IoT
+Repositório para projeto de IoT, do Sistema de Monitoramento (SiMon) do Inmetro, desenvolvido utilizando um Raspberry Pi 3B+ conectado aos sensores de temperatura e umidade (DHT22) e sensore de movimento (PIR).
 
 O código foi desenvolvido utilizando a versao 3.9 do Python e pode ser adaptado para receber novos sensores. O software foi desenvolvido de maneira a registrar logs de inicializaçao do dispositivo e as mediçoes de cada sensor em arquivos com estrutura JSON.
 

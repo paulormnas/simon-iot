@@ -10,22 +10,17 @@ class Signature(object):
         self.config = ConfigSecurity()
         
     def sign(self, dados):
-        convert = str(dados)   #Converte o dicionario em uma string para poder ser em seguida convertido em bytes.
-        byte_mensage = convert.encode()   #Converte a string em bytes para poder gerar o Hash.
-        h = SHA256.new(byte_mensage)   #Gera o Hash da mensagem
-        print(h.hexdigest())
+        convert = str(dados)
+        byte_mensage = convert.encode()
+        h = SHA256.new(byte_mensage)
         key_path = self.config.private_key_path
         key = RSA.import_key(open(key_path).read())
         assinatura = pkcs1_15.new(key).sign(h)
-        print(assinatura)
         return assinatura
 
     def generate_key_pair(self):
         """
-        Gera chaves criptograficas publica e privada, utilizando o algoritmo RSA, com tamanho fixo de 2048,
-        escreve em arquivos e retorna as informaçoes.
-
-        :return: um dicionario com chaves publica e privada e informaçoes das chaves para armazenamento em banco de dados
+        Gera chaves criptograficas publica e privada, utilizando o algoritmo RSA, com tamanho fixo de 2048, e escreve em arquivos.
         """
         key_size = 2048
         priv_key = RSA.generate(key_size)
@@ -42,18 +37,18 @@ class Signature(object):
             f.write(key_stream)
 
     def verify_signature(self, dados, signature):
-        copia = dados   #Copia o dicionario original para fazer as operacoes de comparacao sem alterar o original
-        convert = str(copia)   #Converte o dicionario copiado em uma string para poder ser em seguida convertido em bytes.
-        byte_mensage = convert.encode()   #Converte a string em bytes para poder gerar o Hash.
-        h = SHA256.new(byte_mensage)   #Gera o Hash da mesagem
+        copy = dados
+        convert = str(copy)
+        byte_message = convert.encode()
+        h = SHA256.new(byte_message)
         key_path = self.config.public_key_path
-        key = RSA.import_key(open(key_path).read())  # Le a informaçao da chave publica
+        key = RSA.import_key(open(key_path).read())
         try:
-            pkcs1_15.new(key).verify(h, signature)  # Verifica assinatura a partir do Hash e da chave informados
+            pkcs1_15.new(key).verify(h, signature)
         except ValueError:
-            print("Assinatura invalida")  # Caso ocorra uma exceçao, a assinatura nao e valida
+            print("invalid")  # Caso ocorra uma exceçao, a assinatura nao e valida
             return False
         else:
-            print("A assinatura e valida")
+            print("valid")
             return True
 

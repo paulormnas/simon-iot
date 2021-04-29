@@ -42,6 +42,10 @@ class ConfigDeviceInfo(Config):
     def location(self):
         return self.get_property(section='device', property_name='location')
 
+    @property
+    def type(self):
+        return self.get_property(section='device', property_name='type')
+
 
 class ConfigServer(Config):
     def __init__(self):

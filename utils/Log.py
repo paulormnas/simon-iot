@@ -74,7 +74,7 @@ class LogManager(object):
         self.register(dados)
 
     @staticmethod
-    def register(self, log):
+    def register(log):
         path_start = 'registros/'
         if environ['SIMON_IOT_MODE'] == 'test':
             path_start = '../registros/'

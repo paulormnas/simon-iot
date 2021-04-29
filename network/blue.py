@@ -1,10 +1,7 @@
-#-*- coding: UTF-8 -*-
-import json
+# -*- coding: UTF-8 -*-
 import random
 import subprocess
-import time
 import bluetooth
-from security.Sign import Signature
 from utils.Log import LogManager
 from utils.Config import ConfigDeviceInfo
 
@@ -16,7 +13,6 @@ CHALLENGE = '1002'
 class BluetoothManager(object):
     def __init__(self):
         self.log = LogManager()
-        self.signature = Signature()
         self.sock = None
         self.is_connected = False
 

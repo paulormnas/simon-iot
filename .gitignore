@@ -130,6 +130,12 @@ dmypy.json
 .pyre/
 
 # Pastas de dados do projeto
-registros
+registro*
 instance*
 generated_keys
+
+#A rquivos de confiuraçao
+config.ini
+
+# Chaves publicas e privadas
+*.pem

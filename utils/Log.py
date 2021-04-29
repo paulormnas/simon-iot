@@ -73,6 +73,7 @@ class LogManager(object):
         dados['signature'] = assinatura
         self.register(dados)
 
+    @staticmethod
     def register(self, log):
         path_start = 'registros/'
         if environ['SIMON_IOT_MODE'] == 'test':

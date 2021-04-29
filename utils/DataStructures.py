@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 
-class Fila():
-    def __init__(self, tamanho=10):
-        self.lista = []
-        self.tamanho_da_fila = tamanho
+class Queue(object):
+    def __init__(self, size=10):
+        self.queue = []
+        self.max_size = size
 
-    def adicionar_item(self, item):
-        if len(self.lista) < self.tamanho_da_fila:
-            self.lista.append(item)
+    def add(self, item):
+        if len(self.queue) < self.max_size:
+            self.queue.append(item)
         else:
-            self.lista = self.lista[1:]
-            self.lista.append(item)
+            self.queue = self.queue[1:]
+            self.queue.append(item)
 
-    def ler_itens(self):
-        return self.lista
-
-    def remove_itens(self):
-        pass
+    def get_items(self):
+        return self.queue

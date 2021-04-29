@@ -1,9 +1,6 @@
 Adafruit-DHT==1.4.0
-certifi==2020.12.5
-crypto==1.4.1
 numpy==1.19.5
 PyBluez==0.23
 pycryptodome==3.9.9
 requests==2.25.1
 RPi.GPIO==0.7.0
-urllib3==1.26.2

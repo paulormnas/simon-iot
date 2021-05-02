@@ -129,5 +129,13 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Pastas com registros de dados do projeto
-registro/
+# Pastas de dados do projeto
+registro*
+instance*
+generated_keys
+
+#A rquivos de confiuraçao
+config.ini
+
+# Chaves publicas e privadas
+*.pem

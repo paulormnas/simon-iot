@@ -11,10 +11,11 @@ from datetime import datetime
 
 class Sensor(object):
     def __init__(self):
-        self.LAST_READ_TIME = datetime.now().timestamp()
+        self.LAST_READ_TIME = 0
         self.signature = Signature()
 
-    def register_measures(self, data):
+    @staticmethod
+    def register_measures(data):
         """
         Converte dicionario com informaçoes de mediçao em formato JSON e registra em um arquivo com extensão .json.
             :data - dict
@@ -52,7 +53,8 @@ class Sensor(object):
         self.register_measures(data)
         return data
 
-    def is_valid_std_deviation(self, readings):
+    @staticmethod
+    def is_valid_std_deviation(readings):
         """
         Verifica o desvio padrao de um conjunto de leituras em uma lista.
         :readings - list
@@ -83,14 +85,21 @@ class DHT22(Sensor):
     def read(self):
         temperature_size = 0
         humidity_size = 0
-        while (temperature_size <= self.NUMBER_OF_READINGS and
-               humidity_size <= self.NUMBER_OF_READINGS and
-               datetime.now().timestamp() - self.LAST_READ_TIME <= self.INTERVAL):
-            self.get_temperature_and_humidity()
-            temperature_size = len(self.temperature_queue.get_items())
-            humidity_size = len(self.humidity_queue.get_items())
+        has_new_value = False
+        if datetime.now().timestamp() - self.LAST_READ_TIME <= self.INTERVAL:
+            self.clean_queue()
+            while (temperature_size <= self.NUMBER_OF_READINGS and
+                   humidity_size <= self.NUMBER_OF_READINGS):
+                self.get_temperature_and_humidity()
+                temperature_size = len(self.temperature_queue.get_items())
+                humidity_size = len(self.humidity_queue.get_items())
+                has_new_value = True
+            self.LAST_READ_TIME = datetime.now().timestamp()
+        return self.format_last_temperature_and_humidity_readings() if has_new_value else None
 
-        return self.format_last_temperature_and_humidity_readings()
+    def clean_queue(self):
+        self.temperature_queue.pop_item()
+        self.humidity_queue.pop_item()
 
     def get_temperature_and_humidity(self):
         humidity, temperature = Adafruit_DHT.read_retry(self.DHT_SENSOR, self.DHT_PIN)

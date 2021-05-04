@@ -5,6 +5,9 @@ class Queue(object):
         self.queue = []
         self.max_size = size
 
+    def __repr__(self):
+        return f'Values: {self.queue}'
+
     def add(self, item):
         if len(self.queue) < self.max_size:
             self.queue.append(item)
@@ -14,3 +17,7 @@ class Queue(object):
 
     def get_items(self):
         return self.queue
+
+    def pop_item(self):
+        if len(self.queue) >= 1:
+            self.queue.pop(0)

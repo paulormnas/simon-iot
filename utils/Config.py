@@ -66,20 +66,20 @@ class ConfigSensors(Config):
 
     @property
     def DHT_pin(self):
-        return self.get_property(section='DHT', property_name='pin')
+        return int(self.get_property(section='DHT', property_name='pin'))
 
     @property
     def DHT_number_of_readings(self):
-        return self.get_property(section='DHT', property_name='number_of_readings')
+        return int(self.get_property(section='DHT', property_name='number_of_readings'))
 
     @property
     def DHT_interval(self):
-        return self.get_property(section='DHT', property_name='interval')
+        return int(self.get_property(section='DHT', property_name='interval'))
 
     @property
     def PIR_pin(self):
-        return self.get_property(section='PIR', property_name='pin')
+        return int(self.get_property(section='PIR', property_name='pin'))
 
     @property
     def PIR_interval(self):
-        return self.get_property(section='PIR', property_name='interval')
+        return int(self.get_property(section='PIR', property_name='interval'))

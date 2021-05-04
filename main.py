@@ -24,7 +24,8 @@ def run_meter_mode():
         # TODO: check for calibration event
         data_to_send = [sensor.read for sensor in sensors]
         for data in data_to_send:
-            http.enviar_dados(data)
+            if data is not None:
+                http.enviar_dados(data)
 
 
 def config_sensors():

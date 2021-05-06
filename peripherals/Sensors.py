@@ -88,8 +88,8 @@ class DHT22(Sensor):
         has_new_value = False
         if datetime.now().timestamp() - self.LAST_READ_TIME <= self.INTERVAL:
             self.clean_queue()
-            while (temperature_size <= self.NUMBER_OF_READINGS and
-                   humidity_size <= self.NUMBER_OF_READINGS):
+            while (temperature_size < self.NUMBER_OF_READINGS and
+                   humidity_size < self.NUMBER_OF_READINGS):
                 self.get_temperature_and_humidity()
                 temperature_size = len(self.temperature_queue.get_items())
                 humidity_size = len(self.humidity_queue.get_items())
@@ -151,4 +151,4 @@ class PIR(Sensor):
                 GPIO.input(self.PIN)):
             data_to_send.append(self.format_data("MOVIMENTO", 1))
             self.LAST_READ_TIME = datetime.now().timestamp()
-        return data_to_send
+        return data_to_send if len(data_to_send) > 0 else None

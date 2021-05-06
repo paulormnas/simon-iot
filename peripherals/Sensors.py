@@ -22,7 +22,7 @@ class Sensor(object):
             :return - None
         """
         json_data = json.dumps(data)
-        file_path = "registro/" + data["property"] + "/" + str(data["date"]) + ".json"
+        file_path = "registros/" + data["property"] + "/" + str(data["date"]) + ".json"
 
         with open(file_path, "a+") as f:
             f.write(json_data)
@@ -86,7 +86,7 @@ class DHT22(Sensor):
         temperature_size = 0
         humidity_size = 0
         has_new_value = False
-        if datetime.now().timestamp() - self.LAST_READ_TIME <= self.INTERVAL:
+        if datetime.now().timestamp() - self.LAST_READ_TIME > self.INTERVAL:
             self.clean_queue()
             while (temperature_size < self.NUMBER_OF_READINGS and
                    humidity_size < self.NUMBER_OF_READINGS):
@@ -104,6 +104,7 @@ class DHT22(Sensor):
     def get_temperature_and_humidity(self):
         humidity, temperature = Adafruit_DHT.read_retry(self.DHT_SENSOR, self.DHT_PIN)
         if humidity is not None and temperature is not None:
+            print(f'Umidade: {humidity} | Temperatura: {temperature}')
             if self.is_valid_reading(self.humidity_queue, humidity):
                 self.humidity_queue.add(humidity)
 
@@ -120,10 +121,10 @@ class DHT22(Sensor):
 
     def format_last_temperature_and_humidity_readings(self):
         humidity = self.humidity_queue.get_items()[-1]
-        humidity = self.format_data(humidity)
+        humidity = self.format_data('UMIDADE', humidity)
 
         temperature = self.temperature_queue.get_items()[-1]
-        temperature = self.format_data(temperature)
+        temperature = self.format_data('TEMPERATURA', temperature)
 
         return [humidity, temperature]
 

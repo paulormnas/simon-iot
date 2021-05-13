@@ -17,7 +17,7 @@ def main():
 
 
 def run_meter_mode():
-    blue = Bluetooth.BluetoothManagerMeter()
+    #blue = Bluetooth.BluetoothManagerMeter()
     http = Http.HttpManager()
     sensors = config_sensors()
     while True:

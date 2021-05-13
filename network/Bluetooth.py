@@ -21,11 +21,14 @@ class BluetoothManager(object):
     @staticmethod
     def enable_device_scan():
         subprocess.call(['sudo', 'hciconfig', 'hci0', 'piscan'])
+        
+    def accept_connection():
+        client_sock, client_info = server_sock.accept()
 
     def send_data(self, data):
         # self.server_sock.settimeout(5.0)
-        self.sock.send(data)
-
+        self.sock.send(data)            
+    
     def receive_data(self):
         return self.sock.recv(1024)
 
@@ -59,7 +62,15 @@ class BluetoothManagerStandard(BluetoothManager):
                                     service_classes=[bluetooth.SERIAL_PORT_CLASS],
                                     profiles=[bluetooth.SERIAL_PORT_PROFILE])
         print("Aguardando conexão.")
-
+    
+    def receive_challenge(self):
+        self.accept_connection()
+        data = self.receive_data()
+        if data == 'challenge'
+            self.sign_challenge()
+        else
+            self.receive_challenge()
+        
     def sign_challenge(self):
         challenge = self.receive_data()
         signed_challenge = Signature.sign(challenge)
@@ -113,6 +124,7 @@ class BluetoothManagerMeter(BluetoothManager):
                 print(f'Serviço de calibração não encontrado para o endereço: {addr}')
 
     def connect_socket(self, service, addr):
+        self.log.generate_bluetooth_new_connection_attempt_log(addr=self.client_info)
         port = service["port"]
         self.sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         self.sock.connect((addr, port))
@@ -122,6 +134,10 @@ class BluetoothManagerMeter(BluetoothManager):
         self.send_data(CHALLENGE)
         challenge_value = random.random()
         self.send_data(challenge_value)
+            #if self.server_sock.settimeout == 0
+                #response = 'timeout'
+                #self.check_server_response(response)
+            #else:
         data = self.receive_data()
         http = HttpManager()
         response = http.conferir_assinatura(data)
@@ -130,9 +146,9 @@ class BluetoothManagerMeter(BluetoothManager):
     def check_server_response(self, response):
         if response == 'valid':
             print('Padrao autenticado pelo servidor')
-            self.log.generate_bluetooth_new_connection_log(is_valid=True, addr=self.client_info)
+            self.log.generate_bluetooth_new_valid_connection_log(is_valid=True, addr=self.client_info)
             self.is_connected = True
         else:
             print('Padrao nao autenticado pelo servidor')
-            self.log.generate_bluetooth_new_connection_log(is_valid=False, addr=self.client_info)
+            self.log.generate_bluetooth_new_failed_connection_log(is_valid=False, addr=self.client_info, response)
 

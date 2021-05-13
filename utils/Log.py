@@ -15,17 +15,22 @@ class LogManager(object):
         self._id = self.config.id
         self._location = self.config.location
         self.signature = Signature()
+        self.log = {'id': self._id,
+                   'property': '',
+                   'location': self._location,
+                   'date': 0,
+                   'info': ''
+                   }
 
     def generate_boot_log(self):
+        log = self.log
         boot_date = self.get_last_boot_date()
         timestamp = datetime.now().timestamp()
-        log = {'id': self._id,
-               'property': 'boot_log',
-               'location': self._location,
-               'date': timestamp,
-               'info': boot_date
-               }
+        log['property'] = 'boot_log'
+        log['date'] = timestamp
+        log['info'] = boot_date
         self.sign(log)
+        self.register(dados)
 
     @staticmethod
     def get_last_boot_date():
@@ -40,44 +45,57 @@ class LogManager(object):
         boot_date = str(boot_date)
         return boot_date
 
-    def generate_bluetooth_new_connection_log(self, is_valid, addr):
+    def generate_bluetooth_new_valid_connection_log(self, is_valid, addr):
+        log = self.log
         timestamp = datetime.now().timestamp()
-        log = {'id': self._id,
-               'property': 'new_bluetooth_connection',
-               'location': self._location,
-               'date': timestamp,
-               'device-addr': addr
-               }
-        
-        if is_valid == "valid":
-            log['info'] = 'Device Authenticated'
-                        
-        else:
-            log['info'] = 'Authentication Failed'
-
+        log['property'] = 'new_bluetooth_connection'
+        log['date'] = timestamp
+        log['device-addr'] = addr
+        log['info'] = 'Device Authenticated'
         self.sign(log)
+        self.register(dados)
+    
+    def generate_bluetooth_new_failed_connection_log(self, is_valid, addr, reason):
+        log = self.log
+        timestamp = datetime.now().timestamp()
+        log['property'] = 'new_bluetooth_connection'
+        log['date'] = timestamp
+        log['device-addr'] = addr
+        log['info'] = 'Authentication Failed'
+        
+        if response == 'timeout':
+            log['reason'] = 'Data Receive Timeout'
+        else:
+            log['reason'] = 'Challenge Incorrect'
+        self.sign(log)
+        self.register(dados)
+        
+    def generate_bluetooth_new_connection_attempt_log(self, addr):
+        log = self.log
+        timestamp = datetime.now().timestamp()
+        log['property'] = 'new_bluetooth_connection_attempt'
+        log['date'] = timestamp
+        log['device-addr'] = addr
+        self.sign(log)
+        self.register(dados)
                 
     def generate_calibration_start_log(self):
+        log = self.log
         timestamp = datetime.now().timestamp()
-
-        log = {'id': self._id,
-               'property': 'calibration_started',
-               'location': self._location,
-               'date': timestamp,
-               }
+        log['property'] = 'calibration_started'
+        log['date'] = timestamp
         self.sign(log)
+        self.register(dados)
 
     def sign(self, dados):
         assinatura = self.signature.sign(dados)
         assinatura = str(assinatura)
         dados['signature'] = assinatura
-        self.register(dados)
 
     @staticmethod
     def register(log):
         path_start = 'registros/'
-        if environ['SIMON_IOT_MODE'] == 'test':
-            path_start = '../registros/'
+        path_start = '../registros/'
         log_date = str(log["date"])
         caminho_do_arquivo = f'{path_start}Log/{log_date}.json'
         with open(caminho_do_arquivo, "a+") as f:

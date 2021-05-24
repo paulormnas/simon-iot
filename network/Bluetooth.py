@@ -84,8 +84,12 @@ class BluetoothManagerMeter(BluetoothManager):
 
     def find_and_authenticate_standard(self):
         standard_addrs = self.find_standards()
-        self.connect_to_standard(standard_addrs)
-        self.authenticate()
+        if len(standard_addrs) == 0:
+            print("No devices found")
+            self.close_connections()
+        else:
+            self.connect_to_standard(standard_addrs)
+            self.authenticate()
 
     def find_standards(self):
         print("Dispositivos encontrados:")

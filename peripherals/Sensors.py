@@ -152,4 +152,4 @@ class PIR(Sensor):
                 GPIO.input(self.PIN)):
             data_to_send.append(self.format_data("MOVIMENTO", 1))
             self.LAST_READ_TIME = datetime.now().timestamp()
-        return data_to_send
+        return data_to_send if len(data_to_send) > 0 else None

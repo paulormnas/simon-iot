@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import threading
 from peripherals.Sensors import DHT22, PIR
 from network import Bluetooth, Http
 from utils.Log import LogManager

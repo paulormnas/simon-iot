@@ -2,6 +2,8 @@
 import random
 import subprocess
 import bluetooth
+import threading
+import time
 from utils.Log import LogManager
 from network.Http import HttpManager
 from security.Sign import Signature
@@ -30,7 +32,11 @@ class BluetoothManager(object):
         self.sock.send(data)            
     
     def receive_data(self):
-        return self.sock.recv(1024)
+        try:
+            return self.sock.recv(1024)
+        except socket.timeout:
+            response = 'timeout'
+            return response
 
     def close_connections(self):
         self.client_sock.close()
@@ -64,12 +70,13 @@ class BluetoothManagerStandard(BluetoothManager):
         print("Aguardando conexão.")
     
     def receive_challenge(self):
-        self.accept_connection()
-        data = self.receive_data()
-        if data == 'challenge'
-            self.sign_challenge()
-        else
-            self.receive_challenge()
+        while True:
+            self.accept_connection()
+            data = self.receive_data()
+            if data == 'challenge'
+                self.sign_challenge()
+                break
+            time.sleep(4)
         
     def sign_challenge(self):
         challenge = self.receive_data()
@@ -82,14 +89,11 @@ class BluetoothManagerMeter(BluetoothManager):
         super().__init__()
         self.find_and_authenticate_standard()
 
-    def find_and_authenticate_standard(self):
+    def find_and_authenticate_standard(self):        
         standard_addrs = self.find_standards()
-        if len(standard_addrs) == 0:
-            print("No devices found")
-            self.close_connections()
-        else:
-            self.connect_to_standard(standard_addrs)
-            self.authenticate()
+        threading.Thread(target=self.connect_to_standard, args=(standard_addrs, )).start()
+        time.sleep(3)
+        threading.Thread(target=self.authenticate, ).start()
 
     def find_standards(self):
         print("Dispositivos encontrados:")
@@ -133,26 +137,29 @@ class BluetoothManagerMeter(BluetoothManager):
         self.sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         self.sock.connect((addr, port))
         self.send_data(START_CONNECTION)
-
+        data = self.receive_data()
+        if response != ACK:
+            self.log.generate_bluetooth_new_connection_attempt_log(addr=self.client_info)
+        
     def authenticate(self):
         self.send_data(CHALLENGE)
         challenge_value = random.random()
-        self.send_data(challenge_value)
-            #if self.server_sock.settimeout == 0
-                #response = 'timeout'
-                #self.check_server_response(response)
-            #else:
+        self.send_data(challenge_value)      
         data = self.receive_data()
-        http = HttpManager()
-        response = http.conferir_assinatura(data)
-        self.check_server_response(response)
+        if response == 'timeout':
+            self.check_server_response(response)
+        else:
+            http = HttpManager()
+            response = http.conferir_assinatura(data)
+            self.check_server_response(response)
 
     def check_server_response(self, response):
         if response == 'valid':
             print('Padrao autenticado pelo servidor')
-            self.log.generate_bluetooth_new_valid_connection_log(is_valid=True, addr=self.client_info)
+            self.log.generate_bluetooth_new_valid_connection_log(addr=self.client_info)
             self.is_connected = True
         else:
             print('Padrao nao autenticado pelo servidor')
-            self.log.generate_bluetooth_new_failed_connection_log(is_valid=False, addr=self.client_info, response)
+            reason = 'Authentication Failed'
+            self.log.generate_bluetooth_failed_connection_log(addr=self.client_info, reason)
 

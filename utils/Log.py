@@ -45,7 +45,7 @@ class LogManager(object):
         boot_date = str(boot_date)
         return boot_date
 
-    def generate_bluetooth_new_valid_connection_log(self, is_valid, addr):
+    def generate_bluetooth_new_valid_connection_log(self, addr):
         log = self.log
         timestamp = datetime.now().timestamp()
         log['property'] = 'new_bluetooth_connection'
@@ -55,18 +55,13 @@ class LogManager(object):
         self.sign(log)
         self.register(dados)
     
-    def generate_bluetooth_new_failed_connection_log(self, is_valid, addr, reason):
+    def generate_bluetooth_failed_connection_log(self, addr, reason):
         log = self.log
         timestamp = datetime.now().timestamp()
         log['property'] = 'new_bluetooth_connection'
         log['date'] = timestamp
         log['device-addr'] = addr
-        log['info'] = 'Authentication Failed'
-        
-        if response == 'timeout':
-            log['reason'] = 'Data Receive Timeout'
-        else:
-            log['reason'] = 'Challenge Incorrect'
+        log['info'] = reason
         self.sign(log)
         self.register(dados)
         

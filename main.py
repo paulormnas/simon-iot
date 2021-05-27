@@ -17,7 +17,7 @@ def main():
 
 
 def run_meter_mode():
-    #blue = Bluetooth.BluetoothManagerMeter()
+    threading.Thread(target=bluetooth_meter_handler, ).start()
     http = Http.HttpManager()
     sensors = config_sensors()
     while True:
@@ -27,6 +27,8 @@ def run_meter_mode():
             if data is not None:
                 http.enviar_dados(data)
 
+def bluetooth_meter_handler()
+    blue = Bluetooth.BluetoothManagerMeter()
 
 def config_sensors():
     dht = DHT22()

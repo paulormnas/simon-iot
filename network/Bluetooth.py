@@ -2,8 +2,6 @@
 import random
 import subprocess
 import bluetooth
-import threading
-import time
 from utils.Log import LogManager
 from network.Http import HttpManager
 from security.Sign import Signature

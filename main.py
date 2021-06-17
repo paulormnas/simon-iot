@@ -33,7 +33,7 @@ def run_meter_mode():
             if data is not None:
                 http.enviar_dados(data)
 
-def bluetooth_meter_handler()
+def bluetooth_meter_handler():
     blue = Bluetooth.BluetoothManagerMeter()
 
 def config_sensors():

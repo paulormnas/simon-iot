@@ -47,7 +47,7 @@ class Sensor(object):
                 'value': value
                 }
 
-        signature = self.signature.sign(data)
+        signature = self.signature.sign(str(data).encode())
         signature = str(signature)
         data['signature'] = signature
         self.register_measures(data)

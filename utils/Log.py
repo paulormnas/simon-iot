@@ -30,7 +30,7 @@ class LogManager(object):
         log['date'] = timestamp
         log['info'] = boot_date
         self.sign(log)
-        self.register(dados)
+        self.register(log)
 
     @staticmethod
     def get_last_boot_date():
@@ -90,7 +90,7 @@ class LogManager(object):
         self.register(dados)
 
     def sign(self, dados):
-        assinatura = self.signature.sign(dados)
+        assinatura = self.signature.sign(str(dados).encode())
         assinatura = str(assinatura)
         dados['signature'] = assinatura
 

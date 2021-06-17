@@ -17,11 +17,15 @@ def main():
 
 
 def run_meter_mode():
-    blue = Bluetooth.BluetoothManagerMeter()
+
     http = Http.HttpManager()
     sensors = config_sensors()
+    calibration = True
     while True:
         # TODO: check for calibration event
+        if calibration:
+            bt = Bluetooth.BluetoothManagerMeter()
+
         data_to_send = [sensor.read for sensor in sensors]
         for data in data_to_send:
             if data is not None:
@@ -31,20 +35,12 @@ def run_meter_mode():
 def config_sensors():
     dht = DHT22()
     pir = PIR()
-    return [dht, pir]
+    return [dht]
 
 
 def run_standard_mode():
-    blue = Bluetooth.BluetoothManagerStandard()
-    while True:
-        handle_requests(blue)
-
-
-def handle_requests(std_bluetooth):
-    data = std_bluetooth.receive_data()
-    if data == Bluetooth.CHALLENGE:
-        challenge = std_bluetooth.receive_data()
-        std_bluetooth.sign_challenge(challenge)
+    bt = Bluetooth.BluetoothManagerStandard()
+    bt.handle_requests()
 
 
 if __name__ == "__main__":

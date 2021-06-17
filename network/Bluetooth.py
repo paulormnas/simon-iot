@@ -8,6 +8,7 @@ import json
 from utils.Log import LogManager
 from network.Http import HttpManager
 from security.Sign import Signature
+from utils.Config import ConfigDeviceInfo
 
 START_CONNECTION = b'1000'
 START_AUTH = b'1001'
@@ -19,6 +20,7 @@ TIMEOUT = b'1004'
 class BluetoothManager(object):
     def __init__(self):
         self.log = LogManager()
+        self.config = ConfigDeviceInfo()
         self.sock = None
         self.client_sock = None
         self.connected = False

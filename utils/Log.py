@@ -71,6 +71,13 @@ class LogManager(object):
         log['property'] = 'new_bluetooth_connection_attempt'
         log['date'] = timestamp
         log['device-addr'] = addr
+        
+        if is_valid:
+            log['info'] = 'Device Authenticated'
+                        
+        else:
+            log['info'] = 'Authentication Failed'
+
         self.sign(log)
         self.register(dados)
                 
@@ -90,7 +97,6 @@ class LogManager(object):
     @staticmethod
     def register(log):
         path_start = 'registros/'
-        path_start = '../registros/'
         log_date = str(log["date"])
         caminho_do_arquivo = f'{path_start}Log/{log_date}.json'
         with open(caminho_do_arquivo, "a+") as f:

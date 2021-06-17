@@ -83,7 +83,7 @@ class BluetoothManager(object):
 
 
 class BluetoothManagerStandard(BluetoothManager):
-def __init__(self):
+    def __init__(self):
         super().__init__()
         self.enable_calibration_service()
 

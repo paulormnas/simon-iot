@@ -10,9 +10,7 @@ class Signature(object):
         self.config = ConfigSecurity()
         
     def sign(self, dados):
-        convert = str(dados)
-        byte_mensage = convert.encode()
-        h = SHA256.new(byte_mensage)
+        h = SHA256.new(dados)
         key_path = self.config.private_key_path
         key = RSA.import_key(open(key_path).read())
         assinatura = pkcs1_15.new(key).sign(h)

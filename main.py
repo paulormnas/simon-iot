@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import threading
+import flask
 from peripherals.Sensors import DHT22, PIR
 from network import Bluetooth, Http
 from utils.Log import LogManager
@@ -18,16 +19,15 @@ def main():
 
 
 def run_meter_mode():
+    def start_meter():
+        @app.route("/calibration", methods=['GET'])
+        bt = Bluetooth.BluetoothManagerMeter()
+    threading.Thread(target=start_meter, ).start()
     threading.Thread(target=bluetooth_meter_handler, ).start()
-
     http = Http.HttpManager()
     sensors = config_sensors()
     calibration = True
     while True:
-        # TODO: check for calibration event
-        if calibration:
-            bt = Bluetooth.BluetoothManagerMeter()
-
         data_to_send = [sensor.read for sensor in sensors]
         for data in data_to_send:
             if data is not None:

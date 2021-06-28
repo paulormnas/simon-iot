@@ -17,12 +17,12 @@ def main():
     if config.type == 'standard':
         run_standard_mode()
 
-
-def run_meter_mode():
-    def start_meter():
-        @app.route("/calibration", methods=['GET'])
-        bt = Bluetooth.BluetoothManagerMeter()
-    threading.Thread(target=start_meter, ).start()
+def start_server():
+    app = create_app()
+    app.run(**app.config.get_namespace('RUN_'))
+        
+def run_meter_mode():    
+    threading.Thread(target=start_server, ).start()
     threading.Thread(target=bluetooth_meter_handler, ).start()
     http = Http.HttpManager()
     sensors = config_sensors()

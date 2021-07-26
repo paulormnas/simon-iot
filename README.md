@@ -33,29 +33,25 @@ touch config.ini
 Um arquivo de configuraçao ```config.ini``` tambem devera ser criado com informaçoes sobre o servidor ao qual o dispositvio precisara se conectar, identificaçao do dispositivos, localizaçao das chaves criptograficas e configuraçoes dos sensores conectados ao raspberry. A seguir esta um exemplo de arquivo de confiuraçao:
 
 ```txt
-[signature]
+[security]
+public_key = /path/to/public_key.pem
+private_key = /path/to/private_key.pem
 
-public_key = /path/to/public.pem
-private_key = /path/to/private.pem
-
-[data]
-
-id = dispositivo_001
-localizacao = [-22.597412,-43.289396]
+[device]
+id = dispositivo_test_001
+location = [-22.597412,-43.289396]
+type = meter
 
 [server]
-
-url = 192.168.1.8
-porta = 8080
+url = 192.168.0.9
+port = 8080
 
 [DHT]
-
-pino = 4
-leituras = 10
-intervalo = 300
+pin = 18
+number_of_readings = 10
+interval = 3
 
 [PIR]
-
-pino = 11
-intervalo = 60
+pin = 11
+interval = 60
 ```

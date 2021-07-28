@@ -1,16 +1,16 @@
 {  
   "temp_components": { 
       "value_resolution": 0.01,
-      "stability": 0.02,
-      "uniformity": 0.3,
+      "device_stability": 0.02,
+      "device_uniformity": 0.3,
       "derive": 0.2,
       "itemstability": 0.1
    },
 
   "hum_components": {
       "value_resolution": 0.01,
-      "stability": 0.05,
-      "uniformity": 1.5,
+      "device_stability": 0.05,
+      "device_uniformity": 1.5,
       "derive": 2,
       "itemstability": 1.5
   },

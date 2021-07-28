@@ -19,9 +19,7 @@ class MeasurementUncertainty():
 			"""
 			Desvio padrao experimental da media das leituras do dispositivo padrao e medidor dividido 
 			pela raiz quadrada do numero de medicoes
-			
-			:readings - number
-			
+						
 			"""
 			number_readings = len(readings)
 			stdev = (np.std(readings, ddof=1))/(math.sqrt(number_readings))
@@ -32,13 +30,17 @@ class MeasurementUncertainty():
 			"""
 			Incerteza proveniente do certificado de calibracao do dispositivo padrao
 			E obtida pela divisao da incerteza expandida pelo fator de abrangência
+			
 			"""
 			return expanded_uncertainty_standard/k
 			
-		def curve_fit(self, st_error_estimate):
+		def curve_fit(self, mean_square_error):
 			"""
-			Incerteza proveniente da correcao das leituras atraves do ajuste da curva de calibracao
+			Incerteza proveniente do ajuste da curva, determinada através do cálculo do erro padrão da estimativa
+			(raiz do erro quadrático médio) dividido por um (distribuição normal).			
 			"""
+			
+			st_error_estimate = math.sqrt(mean_square_error)
 			return st_error_estimate/1
 			
 			
@@ -56,13 +58,13 @@ class MeasurementUncertainty():
 			return instrument_resolution/math.sqrt(12)
 			
 			
-		def camara_stability(self, stability):
+		def device_stability(self, stability):
 			"""
 			Incerteza devido a estabilidade da camara climatica usada para a calibracao do dispositivo padrao
 			"""
 			return stability/math.sqrt(3)
 
-		def camara_uniformity(self, uniformity):
+		def device_uniformity(self, uniformity):
 			"""
 			Incerteza devido a uniformidade da camara climatica usada para a calibracao do dispositivo padrao
 			"""
@@ -74,12 +76,12 @@ class MeasurementUncertainty():
 			"""
 			return itemstability/math.sqrt(3)
 
-		def combined_uncertainty(self, uncertainties, sens_coefficient):
+		def combined_uncertainty(self, uncertainties_list, sens_coefficient):
 			"""
 			Combinacao das componentes de incerteza para temperatura e umidade
 			"""
 			combined = 0
-			for i in uncertainties:
+			for i in uncertainties_list:
 				combined += i*i
 			
 			combined = (combined * sens_coefficient)

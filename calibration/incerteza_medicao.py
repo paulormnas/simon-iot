@@ -46,7 +46,7 @@ class MeasurementUncertainty():
 			
 		def standard_derives(self, derives):
 			"""
-			Incerteza devido a deriva do dispositivo padrao
+			Incerteza devido a deriva do dispositivo padrao fornecida pelo certificado de calibracao do padrao
 			"""
 			return derives/math.sqrt(3)
 			

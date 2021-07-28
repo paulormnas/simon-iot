@@ -40,8 +40,8 @@ U_st_temp = measurement.standard_uncertainty(incert["standard_components"]["st_t
 u_derives_temp = measurement.standard_derives(incert["temp_components"]["derive"])
 u_res_meter = measurement.resolution(incert["temp_components"]["value_resolution"])
 u_res_standard = measurement.resolution(incert["temp_components"]["value_resolution"])
-u_stability_temp = measurement.camara_stability(incert["temp_components"]["stability"])
-u_uniformity_temp = measurement.camara_uniformity(incert["temp_components"]["uniformity"])
+u_stability_temp = measurement.device_stability(incert["temp_components"]["device_stability"])
+u_uniformity_temp = measurement.device_uniformity(incert["temp_components"]["device_uniformity"])
 u_item_temp = measurement.item_stability(incert["temp_components"]["itemstability"])
 
 ### Humidity ###
@@ -55,18 +55,18 @@ U_st_hum = measurement.standard_uncertainty(incert["standard_components"]["st_hu
 u_derives_hum = measurement.standard_derives(incert["hum_components"]["derive"])
 u_res_meter = measurement.resolution(incert["hum_components"]["value_resolution"])
 u_res_standard = measurement.resolution(incert["hum_components"]["value_resolution"])
-u_stability_hum = measurement.camara_stability(incert["hum_components"]["stability"])
-u_uniformity_hum = measurement.camara_uniformity(incert["hum_components"]["uniformity"])
+u_stability_hum = measurement.device_stability(incert["hum_components"]["device_stability"])
+u_uniformity_hum = measurement.device_uniformity(incert["hum_components"]["device_uniformity"])
 u_item_hum = measurement.item_stability(incert["hum_components"]["itemstability"])
 
 
-list_of_uncertainties_temp = [u_standard_temp,u_meter_temp,u_curve_fit_temp, U_st_temp, u_derives_temp, u_res_meter, u_res_standard, u_stability_temp, u_uniformity_temp, u_item_temp]
-list_of_uncertainties_hum = [u_standard_hum, u_meter_hum, u_curve_fit_hum, U_st_hum, u_derives_hum, u_res_meter, u_res_standard, u_stability_hum, u_uniformity_hum, u_item_hum]
+uncertainties_list_temp = [u_standard_temp,u_meter_temp,u_curve_fit_temp, U_st_temp, u_derives_temp, u_res_meter, u_res_standard, u_stability_temp, u_uniformity_temp, u_item_temp]
+uncertainties_list_hum = [u_standard_hum, u_meter_hum, u_curve_fit_hum, U_st_hum, u_derives_hum, u_res_meter, u_res_standard, u_stability_hum, u_uniformity_hum, u_item_hum]
 
 ### Calculation of combined uncertainty ###
 ### Temperature ###
-u_comb_temp = measurement.combined_uncertainty(list_of_uncertainties_temp, incert["standard_components"]["sensitivity_coefficient"])
-u_comb_hum = measurement.combined_uncertainty(list_of_uncertainties_hum, incert["standard_components"]["sensitivity_coefficient"])
+u_comb_temp = measurement.combined_uncertainty(uncertainties_list_temp, incert["standard_components"]["sensitivity_coefficient"])
+u_comb_hum = measurement.combined_uncertainty(uncertainties_list_hum, incert["standard_components"]["sensitivity_coefficient"])
 
 ### Calculation of expanded uncertainty ###
 U_temp = measurement.expanded_uncertainty(u_comb_temp,incert["standard_components"]["k"])
@@ -105,6 +105,3 @@ print("The expanded uncertainty of temperature is:", U_temp, "°C")
 
 print("The combined uncertainty of humidity is:", u_comb_hum, "%ur")
 print("The expanded uncertainty of humidity is:", U_hum, "%ur")
-
-
-#incert["temp_components"]["derive"]

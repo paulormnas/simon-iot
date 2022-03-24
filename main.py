@@ -11,14 +11,16 @@ def main():
     log.generate_boot_log()
 
     config = ConfigDeviceInfo()
-    if config.type == 'meter':
+    if config.type == "meter":
         run_meter_mode()
-    if config.type == 'standard':
+    if config.type == "standard":
         run_standard_mode()
 
 
 def run_meter_mode():
-    threading.Thread(target=bluetooth_meter_handler, ).start()
+    threading.Thread(
+        target=bluetooth_meter_handler,
+    ).start()
 
     http = Http.HttpManager()
     sensors = config_sensors()
@@ -33,8 +35,10 @@ def run_meter_mode():
             if data is not None:
                 http.enviar_dados(data)
 
+
 def bluetooth_meter_handler():
     blue = Bluetooth.BluetoothManagerMeter()
+
 
 def config_sensors():
     dht = DHT22()

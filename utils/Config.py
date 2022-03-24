@@ -5,8 +5,12 @@ from os import path, environ
 
 class Config(object):
     def __init__(self):
-        mode = environ['SIMON_IOT_MODE'] if 'SIMON_IOT_MODE' in environ else 'development'
-        config_path = path.join(path.abspath(path.dirname(__file__)), f"../instance_{mode}/config.ini")
+        mode = (
+            environ["SIMON_IOT_MODE"] if "SIMON_IOT_MODE" in environ else "development"
+        )
+        config_path = path.join(
+            path.abspath(path.dirname(__file__)), f"../instance_{mode}/config.ini"
+        )
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
 
@@ -23,11 +27,11 @@ class ConfigSecurity(Config):
 
     @property
     def public_key_path(self):
-        return self.get_property(section='security', property_name='public_key')
+        return self.get_property(section="security", property_name="public_key")
 
     @property
     def private_key_path(self):
-        return self.get_property(section='security', property_name='private_key')
+        return self.get_property(section="security", property_name="private_key")
 
 
 class ConfigDeviceInfo(Config):
@@ -36,15 +40,15 @@ class ConfigDeviceInfo(Config):
 
     @property
     def id(self):
-        return self.get_property(section='device', property_name='id')
+        return self.get_property(section="device", property_name="id")
 
     @property
     def location(self):
-        return self.get_property(section='device', property_name='location')
+        return self.get_property(section="device", property_name="location")
 
     @property
     def type(self):
-        return self.get_property(section='device', property_name='type')
+        return self.get_property(section="device", property_name="type")
 
 
 class ConfigServer(Config):
@@ -53,11 +57,11 @@ class ConfigServer(Config):
 
     @property
     def url(self):
-        return self.get_property(section='server', property_name='url')
+        return self.get_property(section="server", property_name="url")
 
     @property
     def port(self):
-        return self.get_property(section='server', property_name='port')
+        return self.get_property(section="server", property_name="port")
 
 
 class ConfigSensors(Config):
@@ -66,20 +70,20 @@ class ConfigSensors(Config):
 
     @property
     def DHT_pin(self):
-        return int(self.get_property(section='DHT', property_name='pin'))
+        return int(self.get_property(section="DHT", property_name="pin"))
 
     @property
     def DHT_number_of_readings(self):
-        return int(self.get_property(section='DHT', property_name='number_of_readings'))
+        return int(self.get_property(section="DHT", property_name="number_of_readings"))
 
     @property
     def DHT_interval(self):
-        return int(self.get_property(section='DHT', property_name='interval'))
+        return int(self.get_property(section="DHT", property_name="interval"))
 
     @property
     def PIR_pin(self):
-        return int(self.get_property(section='PIR', property_name='pin'))
+        return int(self.get_property(section="PIR", property_name="pin"))
 
     @property
     def PIR_interval(self):
-        return int(self.get_property(section='PIR', property_name='interval'))
+        return int(self.get_property(section="PIR", property_name="interval"))

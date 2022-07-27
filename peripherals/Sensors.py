@@ -41,18 +41,19 @@ class Sensor(object):
         location = config.location
         date = datetime.now().timestamp()
 
-        data = {'id': _id,
-                'location': location,
-                'property': _property,
-                'date': date,
-                'value': value
-                }
+        data = {
+            "id": _id,
+            "location": location,
+            "property": _property,
+            "date": date,
+            "value": value,
+        }
 
         signature = self.signature.sign(str(data).encode())
         signature = str(signature)
-        data['signature'] = signature
+        data["signature"] = signature
         self.register_measures(data)
-       
+
         return data
 
     @staticmethod
@@ -68,12 +69,12 @@ class Sensor(object):
 
 class DHT22(Sensor):
     def __init__(self):
-        '''
+        """
         Construtor da classe DHT22, onde pino identifica e a porta GPIO do Raspberry no qual o sensor se encontra
         conectado, quantidade_leituras esta relacionando com a quantidade de leituras que o sensor devera realizar
         para verificar o desvio padrao e consolidar uma unica mediçao e intervalo_medicao e o tempo, em segundos,
         entre mediçoes consecutivas. As confiuraçoes do sensor sao obtidas atraves do arquivo config.ini
-        '''
+        """
         super().__init__()
         config = ConfigSensors()
         self.DHT_SENSOR = Adafruit_DHT.DHT22
@@ -90,14 +91,20 @@ class DHT22(Sensor):
         has_new_value = False
         if datetime.now().timestamp() - self.LAST_READ_TIME > self.INTERVAL:
             self.clean_queue()
-            while (temperature_size < self.NUMBER_OF_READINGS and
-                   humidity_size < self.NUMBER_OF_READINGS):
+            while (
+                temperature_size < self.NUMBER_OF_READINGS
+                and humidity_size < self.NUMBER_OF_READINGS
+            ):
                 self.get_temperature_and_humidity()
                 temperature_size = len(self.temperature_queue.get_items())
                 humidity_size = len(self.humidity_queue.get_items())
                 has_new_value = True
             self.LAST_READ_TIME = datetime.now().timestamp()
-        return self.format_last_temperature_and_humidity_readings() if has_new_value else None
+        return (
+            self.format_last_temperature_and_humidity_readings()
+            if has_new_value
+            else None
+        )
 
     def clean_queue(self):
         self.temperature_queue.pop_item()
@@ -106,7 +113,7 @@ class DHT22(Sensor):
     def get_temperature_and_humidity(self):
         humidity, temperature = Adafruit_DHT.read_retry(self.DHT_SENSOR, self.DHT_PIN)
         if humidity is not None and temperature is not None:
-            print(f'Umidade: {humidity} | Temperatura: {temperature}')
+            print(f"Umidade: {humidity} | Temperatura: {temperature}")
             if self.is_valid_reading(self.humidity_queue, humidity):
                 self.humidity_queue.add(humidity)
 
@@ -123,30 +130,30 @@ class DHT22(Sensor):
 
     def format_last_temperature_and_humidity_readings(self):
         humidity = self.humidity_queue.get_items()[-1]
-        humidity = self.format_data('UMIDADE', humidity)
+        humidity = self.format_data("UMIDADE", humidity)
 
         temperature = self.temperature_queue.get_items()[-1]
-        temperature = self.format_data('TEMPERATURA', temperature)
+        temperature = self.format_data("TEMPERATURA", temperature)
 
         return [humidity, temperature]
-        
+
     def get_queues_items(self):
         temp = self.temperature_queue.get_items()
         humi = self.humidity_queue.get_items()
-	
+
         return temp, humi
 
 
 class PIR(Sensor):
     def __init__(self):
-        '''
+        """
         Construtor da classe PIR, onde pino identifica e a porta GPIO do Raspberry no qual o sensor se encontra
         conectado e intervalo_medicao e o tempo, em segundos, entre mediçoes consecutivas.
 
         :pino - int
         :intervalo_medicao: - int
 
-        '''
+        """
         super().__init__()
         config = ConfigSensors()
         self.PIN = config.PIR_pin
@@ -156,8 +163,10 @@ class PIR(Sensor):
 
     def read(self):
         data_to_send = []
-        if (datetime.now().timestamp() - self.LAST_READ_TIME > self.INTERVAL and
-                GPIO.input(self.PIN)):
+        if (
+            datetime.now().timestamp() - self.LAST_READ_TIME > self.INTERVAL
+            and GPIO.input(self.PIN)
+        ):
             data_to_send.append(self.format_data("MOVIMENTO", 1))
             self.LAST_READ_TIME = datetime.now().timestamp()
         return data_to_send if len(data_to_send) > 0 else None

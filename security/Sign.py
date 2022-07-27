@@ -8,7 +8,7 @@ from Crypto.Signature import pkcs1_15
 class Signature(object):
     def __init__(self):
         self.config = ConfigSecurity()
-        
+
     def sign(self, dados):
         h = SHA256.new(dados)
         key_path = self.config.private_key_path
@@ -22,16 +22,16 @@ class Signature(object):
         """
         key_size = 2048
         priv_key = RSA.generate(key_size)
-        priv_key_pem = priv_key.export_key('PEM')
-        self.write_key_to_pem_file(file_name='private_key', key_stream=priv_key_pem)
+        priv_key_pem = priv_key.export_key("PEM")
+        self.write_key_to_pem_file(file_name="private_key", key_stream=priv_key_pem)
 
         pub_key = priv_key.publickey()
-        pub_key_pem = pub_key.export_key('PEM')
-        self.write_key_to_pem_file(file_name='public_key', key_stream=pub_key_pem)
+        pub_key_pem = pub_key.export_key("PEM")
+        self.write_key_to_pem_file(file_name="public_key", key_stream=pub_key_pem)
 
     def write_key_to_pem_file(self, file_name, key_stream):
-        file_path = f'../generated_keys/{file_name}.pem'
-        with open(file_path, 'wb') as f:
+        file_path = f"../generated_keys/{file_name}.pem"
+        with open(file_path, "wb") as f:
             f.write(key_stream)
 
     def verify_signature(self, dados, signature):
@@ -49,4 +49,3 @@ class Signature(object):
         else:
             print("valid")
             return True
-

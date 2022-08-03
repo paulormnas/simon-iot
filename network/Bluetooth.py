@@ -10,11 +10,15 @@ from network.Http import HttpManager
 from security.Sign import Signature
 from utils.Config import ConfigDeviceInfo
 
-START_CONNECTION = b"1000"
-START_AUTH = b"1001"
-ACK = b"1002"
-CHALLENGE = b"1003"
-TIMEOUT = b"1004"
+START_CONNECTION = "1000"
+START_AUTH = "1001"
+ACK = "1002"
+CHALLENGE = "1003"
+TIMEOUT = "1004"
+SEND_MEASURE = "1005"
+MEASURE = "1006"
+ERROR_JSON = "1010"
+
 
 
 class BluetoothManager(object):
@@ -39,29 +43,50 @@ class BluetoothManager(object):
         payload = self.compose_payload(cmd, data)
         self.sock.send(payload)
 
+    def send_measure_to_standard(self, property_, value=""):
+        payload = self.compose_measure(property_, value)
+        self.sock.send(payload)
+
     @staticmethod
-    def compose_payload(cmd, data):
-        payload = bytes(cmd)
-        if type(data) is bytearray or type(data) is bytes:
-            payload += data
-
-        if type(data) is str:
-            payload += data.encode()
-
+    def compose_measure (property_, value):
+        menssage = {"property": property_, "value": value, "cmd": MEASURE}
+        payload = json.dumps(menssage)
         return payload
 
+    @staticmethod
+    def compose_payload(cmd, data):
+        payload = {"cmd": cmd, "data": data}
+        return json.dumps(payload)
+
     def receive_data(self, socket):
-        incoming = {"cmd": "", "data": ""}
+        incoming = {}
         try:
             payload = socket.recv(2048)
-
-            incoming["cmd"] = payload[:4]
-            incoming["data"] = payload[4:]
+            incoming = json.loads(payload)
         except bluetooth.BluetoothError as err:
             incoming = {"cmd": TIMEOUT}
             if hasattr(err, "message"):
                 print(err.message)
-
+        except json.decoder.JSONDecodeError as err:
+            incoming = {'cmd': ERROR_JSON}
+            if hasattr(err, 'message'):
+                print(err.message)
+        return incoming
+        
+    def receive_measure(self):
+        incoming = {'cmd': '', 'property': '', 'value': ''}
+        try:
+            payload = self.client_sock.recv(2048)
+            incoming = json.loads(payload)
+        except bluetooth.BluetoothError as err:
+            incoming = {'cmd': TIMEOUT}
+            if hasattr(err, 'message'):
+                print(err.message)
+        except json.decoder.JSONDecodeError as err:
+            incoming = {'cmd': ERROR_JSON}
+            if hasattr(err, 'message'):
+                print(err.message)
+                
         return incoming
 
     def close_connections(self):
@@ -71,8 +96,10 @@ class BluetoothManager(object):
         if self.sock != None:
             self.sock.close()
 
-        self.disable_device_scan()
+        #TODO: Tratar busca por dispositivo de calibração
+        #self.disable_device_scan()
         self.connected = False
+        
 
     @staticmethod
     def disable_device_scan():

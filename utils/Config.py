@@ -9,7 +9,7 @@ class Config(object):
             environ["SIMON_IOT_MODE"] if "SIMON_IOT_MODE" in environ else "development"
         )
         config_path = path.join(
-            path.abspath(path.dirname(__file__)), f"../instance_{mode}/config.ini"
+            path.abspath(path.dirname(__file__)), f"../instance_{mode}/config.cfg"
         )
         self.config = configparser.ConfigParser()
         self.config.read(config_path)

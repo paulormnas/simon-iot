@@ -42,7 +42,7 @@ def bluetooth_meter_handler():
 
 def config_sensors():
     dht = DHT22()
-    pir = PIR()
+    #pir = PIR()
     return [dht]
 
 

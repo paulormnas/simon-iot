@@ -244,13 +244,14 @@ class BluetoothManagerMeter(BluetoothManager):
         if response == "valid":
             self.send_data_to_standard(ACK)
             print("[BLUETOOTH-METER]: Padrão autenticado pelo servidor")
-            self.log.generate_bluetooth_new_connection_log(
-                is_valid=True, addr=self.device_connected_addr
+            self.log.generate_bluetooth_new_valid_connection_log(
+                addr=self.device_connected_addr
             )
         else:
             print("[BLUETOOTH-METER]: Padrão não autenticado pelo servidor")
-            self.log.generate_bluetooth_new_connection_log(
-                is_valid=False, addr=self.device_connected_addr
+            self.log.generate_bluetooth_new_failed_connection_log(
+                addr=self.device_connected_addr,
+                reason = "Padrão não autenticado pelo servidor"
             )
             self.connected = False
             self.close_connections()

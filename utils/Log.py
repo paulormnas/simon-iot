@@ -53,7 +53,7 @@ class LogManager(object):
         log["device-addr"] = addr
         log["info"] = "Device Authenticated"
         self.sign(log)
-        self.register(dados)
+        self.register(log)
 
     def generate_bluetooth_failed_connection_log(self, addr, reason):
         log = self.log
@@ -63,7 +63,7 @@ class LogManager(object):
         log["device-addr"] = addr
         log["info"] = reason
         self.sign(log)
-        self.register(dados)
+        self.register(log)
 
     def generate_bluetooth_new_connection_attempt_log(self, addr):
         log = self.log
@@ -79,7 +79,7 @@ class LogManager(object):
             log["info"] = "Authentication Failed"
 
         self.sign(log)
-        self.register(dados)
+        self.register(log)
 
     def generate_calibration_start_log(self):
         log = self.log
@@ -87,7 +87,7 @@ class LogManager(object):
         log["property"] = "calibration_started"
         log["date"] = timestamp
         self.sign(log)
-        self.register(dados)
+        self.register(log)
 
     def sign(self, dados):
         assinatura = self.signature.sign(str(dados).encode())

@@ -6,6 +6,7 @@ import bluetooth
 import time
 import json
 import os
+from datetime import datetime
 from utils.Log import LogManager
 from network.Http import HttpManager
 from security.Sign import Signature
@@ -21,7 +22,9 @@ TIMEOUT = "1004"
 SEND_MEASURE = "1005"
 MEASURE = "1006"
 ERROR_JSON = "1010"
-
+AUTHENTICATED = "1011"
+PING = "1012"
+PONG = "1013" 
 
 
 class BluetoothManager(object):
@@ -42,15 +45,27 @@ class BluetoothManager(object):
 
     def send_data_to_meter(self, cmd, data=""):
         payload = self.compose_payload(cmd, data)
-        self.client_sock.send(payload)
+        try:
+            self.client_sock.send(payload)
+        except bluetooth.BluetoothError as err:
+            print("[BLUETOOTH-STANDARD]: ERRO DE COMUNICAçãO COM O MEDIDOR ")
+            self.close_connections()
 
     def send_data_to_standard(self, cmd, data=""):
         payload = self.compose_payload(cmd, data)
-        self.sock.send(payload)
+        try:
+            self.sock.send(payload)
+        except bluetooth.BluetoothError as err:
+            print("[BLUETOOTH-METER]: ERRO DE COMUNICAçãO COM O PADRÃO ")
+            self.close_connections()
 
     def send_measure_to_standard(self, property_, value=""):
         payload = self.compose_measure(property_, value)
-        self.sock.send(payload)
+        try:
+            self.sock.send(payload)
+        except bluetooth.BluetoothError as err:
+            print("[BLUETOOTH-METER]: ERRO DE COMUNICAçãO COM O PADRÃO ")
+            self.close_connections()
 
     @staticmethod
     def compose_measure (property_, value):
@@ -143,19 +158,22 @@ class BluetoothManagerStandard(BluetoothManager):
             if not self.is_connected():
                 self.verify_connection()
                 
-            if self.is_connected() not self.is_authenticated:
+            if self.is_connected() and not self.is_authenticated:
                 data = self.receive_data(self.client_sock)
                 print(f"[BLUETOOTH-STANTDARD]: Data received: {data}")
-                if data["cmd"] == TIMEOUT or data["cmd"] == ACK:
+                if data["cmd"] == TIMEOUT:
                     self.close_connections()
                     break
                 if data["cmd"] == START_AUTH:
                     config = ConfigDeviceInfo()
                     self.send_data_to_meter(ACK, config.id)
                 if data["cmd"] == CHALLENGE:
-                    signed_challenge = self.sign_challenge(data["data"])
+                    signed_challenge = self.sign_challenge(data["data"].encode("utf8"))
                     self.send_data_to_meter(ACK, signed_challenge)
-                
+                if data["cmd"] == AUTHENTICATED:
+                    self.is_authenticated = True
+                if data["cmd"] == PING:
+                    self.send_data_to_meter (cmd = PONG)
             if self.is_connected() and self.is_authenticated:
                 self.manager_calibration()
                 
@@ -163,29 +181,31 @@ class BluetoothManagerStandard(BluetoothManager):
         global counter
         
         counter = {"TEMPERATURA": 0, "UMIDADE": 0}
-        os.environ['NUMBER_OF_PROPERTIES'] = 2
+        os.environ['NUMBER_OF_PROPERTIES'] = "2"
         ultima_medicao = 0
         message_counter = 0
         total_measures = 0
         
         #TODO: Finalizar o Manger calibration
         while self.is_connected():
-            n_readings = os.environ['N_READINGS']
-            intervalo = os.environ['INTERVALO']
-            start_readings = os.environ['START_READINGS']
-            pause = os.environ['PAUSE']
-            
+            n_readings = int(os.environ['N_READINGS'])
+            intervalo = int(os.environ['INTERVALO'])
+            start_readings = os.environ['START_READINGS'] == "True"
+            pause = os.environ['PAUSE'] == "True"
+            print(os.environ['START_READINGS'])
             is_timing_to_measure = (datetime.now().timestamp() - ultima_medicao) >= intervalo
+            print(start_readings,pause,is_timing_to_measure)
             if start_readings and not pause and is_timing_to_measure:
+                
                 if counter["TEMPERATURA"] < n_readings:
-                    manager_measures(bt_manager, "TEMPERATURA")
+                    self.manager_measures(n_readings, "TEMPERATURA")
                     total_measures += 1
                 if counter["UMIDADE"] < n_readings:
-                    manager_measures(bt_manager, "UMIDADE")
+                    self.manager_measures(n_readings, "UMIDADE")
                     total_measures += 1
                 ultima_medicao = datetime.now().timestamp()
                 message_counter = 0
-                os.environ['TOTAL_MEASURES_COUNTER'] = total_measures
+                os.environ['TOTAL_MEASURES_COUNTER'] = str(total_measures)
             
             if not is_timing_to_measure:
                 if message_counter < 1:
@@ -197,14 +217,15 @@ class BluetoothManagerStandard(BluetoothManager):
                 print("[BLUETOOTH]: Ending calibration")
                 message_counter = 0
                 
-            if is_counter_complete(n_readings) and n_readings > 0:
+            if self.is_counter_complete(n_readings) and n_readings > 0:
                 for key in counter:
                     counter[key] = 0
                 n_readings = 0
                 start_readings = False
                 
-            os.environ['N_READINGS'] = n_readings
-            os.environ['START_READINGS'] = start_readings 
+            os.environ['N_READINGS'] = str(n_readings)
+            os.environ['START_READINGS'] = str(start_readings)
+            time.sleep(1)
 
     @staticmethod
     def is_counter_complete(n_readings):
@@ -213,14 +234,14 @@ class BluetoothManagerStandard(BluetoothManager):
         results = [counter[key] == n_readings for key in counter]
         return all(results)
         
-    def manager_measures(self, property_: str):
+    def manager_measures(self,n_readings, property_):
         global counter
 
         dht = DHT22()
-        self.send_message(cmd=Bluetooth.SEND_MEASURE, value=property_)
+        self.send_data_to_meter(cmd=SEND_MEASURE, data=property_)
         incoming_msg = self.receive_measure()
-        if incoming_msg["cmd"] == Bluetooth.MEASURE:
-            self.send_message(cmd=Bluetooth.ACK, value="")
+        if incoming_msg["cmd"] == MEASURE:
+            self.send_data_to_meter(cmd=ACK, data="")
             if incoming_msg["value"] is not None:
                 standard_temperature, standard_humidity = dht.read_temperature_and_humidity()
                 client_property = incoming_msg["property"]
@@ -255,14 +276,14 @@ class BluetoothManagerStandard(BluetoothManager):
     def sign_challenge(self, challenge):
         print(f"[BLUETOOTH-STANTDARD]: Challenge recebido: {challenge}")
         s = Signature()
-        return s.sign(challenge)
+        return str(s.sign(challenge))
 
 
 class BluetoothManagerMeter(BluetoothManager):
     def __init__(self):
         super().__init__()
         self.device_connected_addr = ""
-        handle_calibration()
+        self.handle_calibration()
 
     
     def handle_calibration(self):
@@ -277,32 +298,31 @@ class BluetoothManagerMeter(BluetoothManager):
                 self.authenticate()
                 
             if self.is_connected() and self.is_authenticated and self.is_calibrating:
-                incoming_msg = self.receive_data()
+                incoming_msg = self.receive_data(self.sock)
                 cmd = incoming_msg["cmd"]
                 if cmd == SEND_MEASURE:
                     temperatura, umidade = dht.read_temperature_and_humidity()
-                    if incoming_msg['value'] == "TEMPERATURA":
-                        measure = {
-                            "property": "TEMPERATURA",
-                            "value": temperatura,
-                        }
-                    elif incoming_msg['value'] == "UMIDADE":
-                        measure = {
-                            "property": "UMIDADE",
-                            "value": umidade,
-                        }
-                    self.send_measures(measure=measure)
+                    if incoming_msg['data'] == "TEMPERATURA":
+                        self.send_measure_to_standard(property_="TEMPERATURA", value=temperatura)
+                    elif incoming_msg['data'] == "UMIDADE":
+                        self.send_measure_to_standard(property_="UMIDADE", value=umidade)
                     contador_timeout = 0
                 if incoming_msg["cmd"] == TIMEOUT:
-                    contador_timeout += 1
-                    if contador_timeout == 4:
-                        print("FECHANDO CONEXÃO COM O DISPOSITIVO PADRÃO POR TIMEOUT")
-                        self.close_connections()
-                        contador_timeout = 0
+                    contador_timeout = self.check_connection_to_standard(contador_timeout)
                 else:
                     contador_timeout = 0
 
-                
+    def check_connection_to_standard(self, contador_timeout):
+        self.send_data_to_standard(cmd = PING)
+        is_alive = self.receive_data(self.sock)
+        if is_alive["cmd"] == TIMEOUT:
+            contador_timeout += 1
+        if contador_timeout == 4:
+            print("FECHANDO CONEXÃO COM O DISPOSITIVO PADRÃO POR TIMEOUT")
+            self.close_connections()
+            contador_timeout = 0 
+        return contador_timeout
+             
     def find_and_connect_to_standard(self):
         standard_addrs = self.find_standards()
         if len(standard_addrs) == 0:
@@ -345,6 +365,7 @@ class BluetoothManagerMeter(BluetoothManager):
                 service = services[0]
                 self.connect_socket(service, addr)
                 if self.is_connected():
+                    self.standard_address = addr
                     break
             else:
                 print(
@@ -370,10 +391,10 @@ class BluetoothManagerMeter(BluetoothManager):
         self.send_data_to_standard(START_AUTH)
         response = self.receive_data(self.sock)
         if response["cmd"] == ACK:
-            standard_id = response["data"].decode()
+            standard_id = response["data"]
             print("[BLUETOOTH-METER]: Iniciando autenticação do padrão.")
             print("[BLUETOOTH-METER]: Device ID = ", standard_id)
-            challenge_value = str(random.random())
+            challenge_value = str(random.randint(1000000,100000000))
             print("[BLUETOOTH-METER]: Enviando desafio...")
             self.send_data_to_standard(CHALLENGE, challenge_value)
             print("[BLUETOOTH-METER]: Aguardando resposta...")
@@ -393,17 +414,22 @@ class BluetoothManagerMeter(BluetoothManager):
         if response == "valid":
             self.is_authenticated = True
             self.is_calibrating = True
-            self.send_data_to_standard(ACK)
+            self.send_data_to_standard(AUTHENTICATED)
+
             print("[BLUETOOTH-METER]: Padrão autenticado pelo servidor")
-            self.log.generate_bluetooth_new_valid_connection_log(
-                addr=self.device_connected_addr
-            )
+            # self.log.generate_bluetooth_new_valid_connection_log(
+                # addr=self.device_connected_addr
+            # )
         else:
             print("[BLUETOOTH-METER]: Padrão não autenticado pelo servidor")
-            self.log.generate_bluetooth_new_failed_connection_log(
-                addr=self.device_connected_addr,
-                reason = "Padrão não autenticado pelo servidor"
-            )
+            # self.log.generate_bluetooth_newself.log.generate_bluetooth_new_failed_connection_log(
+                # addr=self.device_connected_addr,
+                # reason = "Padrão não autenticado pelo servidor"
+            # )_failed_connection_log(_failed_connection_log(
+                # addr=self.device_connected_addr,
+                # reason = "Padrão não autenticado pelo servidor"
+            # )
             self.connected = False
             self.close_connections()
             self.disable_device_scan()
+

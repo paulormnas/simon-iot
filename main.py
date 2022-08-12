@@ -46,9 +46,7 @@ def config_sensors():
 
 
 def run_standard_mode():
-    ws = websocket.Client(
-         host="192.168.0.24",
-     )
+    ws = websocket.Client()
     ws.start()
     
     bt = Bluetooth.BluetoothManagerStandard()

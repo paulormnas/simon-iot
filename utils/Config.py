@@ -1,4 +1,5 @@
 import configparser
+from dotenv import load_dotenv
 
 from os import path, environ
 
@@ -11,6 +12,10 @@ class Config(object):
         config_path = path.join(
             path.abspath(path.dirname(__file__)), f"../instance_{mode}/config.cfg"
         )
+        env_path = path.join(
+            path.abspath(path.dirname(__file__)), f"../calibration.env"
+        )
+        load_dotenv(env_path)
         self.config = configparser.ConfigParser()
         self.config.read(config_path)
 

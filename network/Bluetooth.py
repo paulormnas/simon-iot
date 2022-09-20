@@ -169,7 +169,8 @@ class BluetoothManagerStandard(BluetoothManager):
                     self.send_data_to_meter(ACK, config.id)
                 if data["cmd"] == CHALLENGE:
                     signed_challenge = self.sign_challenge(data["data"].encode("utf8"))
-                    self.send_data_to_meter(ACK, signed_challenge)
+                    self.send_data_to_meter(ACK)
+                    self.client_sock.send(signed_challenge)
                 if data["cmd"] == AUTHENTICATED:
                     self.is_authenticated = True
                 if data["cmd"] == PING:
@@ -185,16 +186,14 @@ class BluetoothManagerStandard(BluetoothManager):
         ultima_medicao = 0
         message_counter = 0
         total_measures = 0
+        print("[BLUETOOTH-STANTDARD]: Aguardando inicío da calibração.")
         
-        #TODO: Finalizar o Manger calibration
         while self.is_connected():
             n_readings = int(os.environ['N_READINGS'])
             intervalo = int(os.environ['INTERVALO'])
             start_readings = os.environ['START_READINGS'] == "True"
             pause = os.environ['PAUSE'] == "True"
-            print(os.environ['START_READINGS'])
             is_timing_to_measure = (datetime.now().timestamp() - ultima_medicao) >= intervalo
-            print(start_readings,pause,is_timing_to_measure)
             if start_readings and not pause and is_timing_to_measure:
                 
                 if counter["TEMPERATURA"] < n_readings:
@@ -274,9 +273,9 @@ class BluetoothManagerStandard(BluetoothManager):
             print("[BLUETOOTH-STANTDARD]: Aguardando conexão.")
 
     def sign_challenge(self, challenge):
-        print(f"[BLUETOOTH-STANTDARD]: Challenge recebido: {challenge}")
+        print(f"[BLUETOOTH-STANTDARD]: Challenge recebido")
         s = Signature()
-        return str(s.sign(challenge))
+        return s.sign(challenge)
 
 
 class BluetoothManagerMeter(BluetoothManager):
@@ -349,7 +348,7 @@ class BluetoothManagerMeter(BluetoothManager):
         for address in nearby_devices:
             name = bluetooth.lookup_name(address)
             print(name, "\t", address)
-            if name == "SiMon-standard":
+            if name == "SiMon-standard": 
                 devices_addrs.append(address)
         return devices_addrs
 
@@ -400,15 +399,17 @@ class BluetoothManagerMeter(BluetoothManager):
             print("[BLUETOOTH-METER]: Aguardando resposta...")
             response = self.receive_data(self.sock)
             if response["cmd"] == ACK:
+                signature = self.sock.recv(2048)
                 http = HttpManager()
                 print("[BLUETOOTH-METER]: Enviando resposta para o servidor...")
 
                 response = http.conferir_assinatura(
-                    standard_id, challenge_value, response["data"]
+                    standard_id, challenge_value, signature
                 )
                 self.check_server_response(response)
         else:
             self.close_connections()
+
 
     def check_server_response(self, response):
         if response == "valid":
@@ -417,18 +418,8 @@ class BluetoothManagerMeter(BluetoothManager):
             self.send_data_to_standard(AUTHENTICATED)
 
             print("[BLUETOOTH-METER]: Padrão autenticado pelo servidor")
-            # self.log.generate_bluetooth_new_valid_connection_log(
-                # addr=self.device_connected_addr
-            # )
         else:
             print("[BLUETOOTH-METER]: Padrão não autenticado pelo servidor")
-            # self.log.generate_bluetooth_newself.log.generate_bluetooth_new_failed_connection_log(
-                # addr=self.device_connected_addr,
-                # reason = "Padrão não autenticado pelo servidor"
-            # )_failed_connection_log(_failed_connection_log(
-                # addr=self.device_connected_addr,
-                # reason = "Padrão não autenticado pelo servidor"
-            # )
             self.connected = False
             self.close_connections()
             self.disable_device_scan()

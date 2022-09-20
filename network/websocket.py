@@ -36,8 +36,7 @@ class Client(threading.Thread):
                 os.environ["START_READINGS"] = "True"
                 os.environ["N_READINGS"] = str(incoming["num_medicao"])
                 os.environ["INTERVALO"] = str(incoming["intervalo"])
-                print(os.environ["START_READINGS"])
-
+                
             if incoming["cmd"] == "PAUSE":
                 print("[WEBSOCKET] MEDIÇÃO PAUSADA")
                 os.environ["PAUSE"] = "True"
@@ -54,7 +53,6 @@ class Client(threading.Thread):
 
         except:
             pass
-            #print("[WEBSOCKETS] timeout")
 
     async def handle_websocket_send(self, ws):
         payload = {"device": "standard", "cmd": ""}

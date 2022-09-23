@@ -3,6 +3,7 @@ import asyncio
 import threading
 import os
 import json
+from utils.Config import ConfigDeviceInfo
 
 class Client(threading.Thread): 
     def __init__(self, host="localhost", port=8000):
@@ -12,6 +13,7 @@ class Client(threading.Thread):
         self.consumer_handler = self.handle_websocket_receive
         self.producer_handler = self.handle_websocket_send
         self.is_websocket_connected = False
+        self.config = ConfigDeviceInfo()
         
     def run(self):
         asyncio.run(self.start_connection())
@@ -58,6 +60,13 @@ class Client(threading.Thread):
         payload = {"device": "standard", "cmd": ""}
         start = os.environ["START_READINGS"] == "True"
         if not self.is_websocket_connected:
+            payload["cmd"] = {
+            "id": self.config.id,
+            "location": self.config.location,
+            "type": self.config.type,   
+            "model": "Raspberry pi 3B+",
+            "version": "Raspbian GNU/Linux 10 (buster)"           
+            }
             self.is_websocket_connected = True
             await ws.send(json.dumps(payload))
         elif start and int(os.environ["N_READINGS"]) > 0:
@@ -68,3 +77,4 @@ class Client(threading.Thread):
     def calibration_percent(n_readings):
         total_measures = int(os.environ['TOTAL_MEASURES_COUNTER'])
         return (total_measures / (n_readings * int(os.environ['NUMBER_OF_PROPERTIES']))) * 100
+        

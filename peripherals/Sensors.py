@@ -4,6 +4,9 @@ import json
 import Adafruit_DHT
 import RPi.GPIO as GPIO
 import numpy as np
+import os
+import glob
+import time
 from security.Sign import Signature
 from utils.DataStructures import Queue
 from utils.Config import ConfigSensors, ConfigDeviceInfo
@@ -65,6 +68,69 @@ class Sensor(object):
         """
         std_deviation = np.std(readings)
         return std_deviation < 10
+        
+    def escreve_json_calibration(self, property_, value_server, value_client):
+        data = datetime.now().timestamp()
+        registros = {
+            "standard": {
+                "value": value_server,
+                "date": data,
+                "sensor_model": "DHT22",
+                "id": "id://casa/davi/escritorio/dispositivo_001",
+                "property": property_,
+            },
+            "meter": {
+                "value": value_client,
+                "date": data,
+                "sensor_model": "DHT22",
+                "id": "id://casa/davi/escritorio/dispositivo_002",
+                "property": property_,
+            },
+        }
+
+        file_path = f"registros/{property_}/{int(data)}.json"
+        with open(file_path, 'w+', encoding='utf-8') as arquivo:
+            jsonsalvo = json.dumps(registros)
+            arquivo.write(jsonsalvo)
+
+    def escreve_json(self, property_, value):
+        data = datetime.now().timestamp()
+        registros = {
+            "value": value,
+            "date": data,
+            "sensor_model": "DHT22",
+            "id": "id://casa/davi/escritorio/dispositivo_001",
+            "property": property_,
+        }
+        return registros
+        file_path = f"registros/{property_}/{int(data)}.json"
+        with open(file_path, 'w+', encoding='utf-8') as arquivo:
+            jsonsalvo = json.dumps(registros)
+            arquivo.write(jsonsalvo)
+
+    def record_control(self, num_calibracao):
+        properties = ("TEMPERATURA", "UMIDADE")
+        for property_ in properties:
+            regist = f"registros/{property_}/"
+            lista_de_arquivo = os.listdir(path=regist)
+            lista_de_arquivo.sort()
+            quantidade_atual = len(lista_de_arquivo)
+            if quantidade_atual > num_calibracao:
+                arquivo_mais_antigo = lista_de_arquivo[0]
+                registros = glob.glob(f"{regist}{arquivo_mais_antigo}")
+                self.remove_record(registros)
+
+    @staticmethod
+    def remove_record(registros):
+        for registro in registros:
+            try:
+                os.remove(registro)
+            except OSError as e:
+                print(f"Error:{e.strerror}")
+
+    def register_measures(self, num_calibracao, property_, standard_value, meter_value):
+        self.escreve_json_calibration(property_, standard_value, meter_value)
+        self.record_control(num_calibracao)
 
 
 class DHT22(Sensor):
@@ -109,7 +175,14 @@ class DHT22(Sensor):
     def clean_queue(self):
         self.temperature_queue.pop_item()
         self.humidity_queue.pop_item()
-
+        
+    def read_temperature_and_humidity(self):
+        humidity, temperature = Adafruit_DHT.read_retry(self.DHT_SENSOR, self.DHT_PIN)
+        if humidity is not None and temperature is not None:
+            return temperature, humidity
+        else:
+            print("Falha ao receber os dados do sensor DHT22.")
+            
     def get_temperature_and_humidity(self):
         humidity, temperature = Adafruit_DHT.read_retry(self.DHT_SENSOR, self.DHT_PIN)
         if humidity is not None and temperature is not None:

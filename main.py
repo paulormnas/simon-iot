@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
-import threading
+import threading, json, asyncio
 from peripherals.Sensors import DHT22, PIR
-from network import Bluetooth, Http
+from network import Bluetooth, Http, websocket
 from utils.Log import LogManager
 from utils.Config import ConfigDeviceInfo
+from datetime import datetime
+
+MODE = "meter"
+counter = {}
+is_websocket_connected = False
 
 
 def main():
@@ -16,20 +21,14 @@ def main():
     if config.type == "standard":
         run_standard_mode()
 
-
-def run_meter_mode():
+def run_meter_mode():    
     threading.Thread(
         target=bluetooth_meter_handler,
     ).start()
 
     http = Http.HttpManager()
     sensors = config_sensors()
-    calibration = True
     while True:
-        # TODO: check for calibration event
-        if calibration:
-            bt = Bluetooth.BluetoothManagerMeter()
-
         data_to_send = [sensor.read for sensor in sensors]
         for data in data_to_send:
             if data is not None:
@@ -47,9 +46,10 @@ def config_sensors():
 
 
 def run_standard_mode():
+    ws = websocket.Client()
+    ws.start()
+    
     bt = Bluetooth.BluetoothManagerStandard()
-    bt.handle_requests()
-
 
 if __name__ == "__main__":
     main()
